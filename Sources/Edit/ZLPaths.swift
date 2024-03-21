@@ -149,11 +149,15 @@ public extension ZLDrawPath {
 public class ZLMosaicPath: NSObject {
     let path: UIBezierPath
     
+    var bgPath: UIBezierPath
+
     let ratio: CGFloat
     
     let startPoint: CGPoint
     
     var linePoints: [CGPoint] = []
+    
+    var willDelete = false
     
     init(pathWidth: CGFloat, ratio: CGFloat, startPoint: CGPoint) {
         path = UIBezierPath()
@@ -162,6 +166,12 @@ public class ZLMosaicPath: NSObject {
         path.lineJoinStyle = .round
         path.move(to: startPoint)
         
+        bgPath = UIBezierPath()
+        bgPath.lineWidth = pathWidth
+        bgPath.lineCapStyle = .round
+        bgPath.lineJoinStyle = .round
+        bgPath.move(to: CGPoint(x: startPoint.x / ratio, y: startPoint.y / ratio))
+
         self.ratio = ratio
         self.startPoint = CGPoint(x: startPoint.x / ratio, y: startPoint.y / ratio)
         
@@ -170,6 +180,7 @@ public class ZLMosaicPath: NSObject {
     
     func addLine(to point: CGPoint) {
         path.addLine(to: point)
+        bgPath.addLine(to: CGPoint(x: point.x / ratio, y: point.y / ratio))
         linePoints.append(CGPoint(x: point.x / ratio, y: point.y / ratio))
     }
 }
