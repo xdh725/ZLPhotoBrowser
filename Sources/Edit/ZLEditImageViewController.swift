@@ -234,6 +234,8 @@ open class ZLEditImageViewController: UIViewController {
     
     private lazy var deleteDrawPaths: [ZLDrawPath] = []
     
+    private lazy var deleteMosaicDrawPaths: [ZLMosaicPath] = []
+    
     private var defaultDrawPathWidth: CGFloat = 0
     
     private var impactFeedback: UIImpactFeedbackGenerator?
@@ -1331,9 +1333,10 @@ open class ZLEditImageViewController: UIViewController {
         if pan.state == .began || pan.state == .changed {
             eraserCircleView.center = pan.location(in: containerView)
             
+            let eraserDrawRect = CGRect(x: drawPoint.x-eraserCircleView.frame.width/2.0, y: drawPoint.y-eraserCircleView.frame.height/2.0, width: eraserCircleView.frame.width, height: eraserCircleView.frame.height)
             var needDraw = false
             for path in drawPaths {
-                if path.path.contains(drawPoint), !deleteDrawPaths.contains(path) {
+                if CGRectIntersectsRect(eraserDrawRect, path.path.bounds) || CGRectIntersectsRect(path.path.bounds, eraserDrawRect), !deleteDrawPaths.contains(path) {
                     path.willDelete = true
                     deleteDrawPaths.append(path)
                     needDraw = true
@@ -1343,6 +1346,21 @@ open class ZLEditImageViewController: UIViewController {
             if needDraw {
                 drawLine()
             }
+            
+            var needDrawMosaic = false
+            for mosaicPath in mosaicPaths {
+                let bounds = mosaicPath.path.bounds
+                let mosaicRect = CGRect(x: mosaicPath.path.bounds.origin.x / pointScale, y: mosaicPath.path.bounds.origin.y / pointScale, width: mosaicPath.path.bounds.width / pointScale, height: mosaicPath.path.bounds.height / pointScale)
+                if CGRectIntersectsRect(eraserDrawRect, mosaicRect) || CGRectIntersectsRect(mosaicRect, eraserDrawRect), !deleteMosaicDrawPaths.contains(mosaicPath) {
+                    mosaicPath.willDelete = true
+                    deleteMosaicDrawPaths.append(mosaicPath)
+                    needDrawMosaic = true
+                    impactFeedback?.impactOccurred()
+                }
+            }
+            if needDrawMosaic {
+                generateNewMosaicImage()
+            }
         } else {
             eraserCircleView.transform = .identity
             eraserCircleView.isHidden = true
@@ -1351,6 +1369,12 @@ open class ZLEditImageViewController: UIViewController {
                 drawPaths.removeAll { deleteDrawPaths.contains($0) }
                 deleteDrawPaths.removeAll()
                 drawLine()
+            }
+            if !deleteMosaicDrawPaths.isEmpty {
+                editorManager.storeAction(.eraserMosaic(deleteMosaicDrawPaths))
+                mosaicPaths.removeAll { deleteMosaicDrawPaths.contains($0) }
+                deleteMosaicDrawPaths.removeAll()
+                generateNewMosaicImage()
             }
         }
     }
@@ -2059,6 +2083,8 @@ extension ZLEditImageViewController: ZLEditorManagerDelegate {
             undoDraw(path)
         case let .eraser(paths):
             undoEraser(paths)
+        case let .eraserMosaic(mosaicPaths):
+            undoEraserMosaic(mosaicPaths)
         case let .clip(oldStatus, _):
             undoOrRedoClip(oldStatus)
         case let .sticker(oldState, newState):
@@ -2078,6 +2104,8 @@ extension ZLEditImageViewController: ZLEditorManagerDelegate {
             redoDraw(path)
         case let .eraser(paths):
             redoEraser(paths)
+        case let .eraserMosaic(mosaicPaths):
+            redoEraserMosaic(mosaicPaths)
         case let .clip(_, newStatus):
             undoOrRedoClip(newStatus)
         case let .sticker(oldState, newState):
@@ -2113,6 +2141,18 @@ extension ZLEditImageViewController: ZLEditorManagerDelegate {
         drawLine()
     }
     
+    private func undoEraserMosaic(_ paths: [ZLMosaicPath]) {
+        paths.forEach { $0.willDelete = false }
+        mosaicPaths.append(contentsOf: paths)
+//        mosaicPaths = mosaicPaths.sorted { $0.index < $1.index }
+        generateNewMosaicImage()
+    }
+    
+    private func redoEraserMosaic(_ paths: [ZLMosaicPath]) {
+        mosaicPaths.removeAll { paths.contains($0) }
+        generateNewMosaicImage()
+    }
+
     private func undoOrRedoClip(_ status: ZLClipStatus) {
         clipImage(status: status)
         preClipStatus = status
