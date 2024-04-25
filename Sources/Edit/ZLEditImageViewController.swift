@@ -226,6 +226,8 @@ open class ZLEditImageViewController: UIViewController {
     
     private var defaultDrawPathWidth: CGFloat = 0
     
+    private var defaultDrawMosaicWidth: CGFloat = 0
+    
     private var impactFeedback: UIImpactFeedbackGenerator?
     
     // 第一次进入界面时，布局后frame，裁剪dimiss动画使用
@@ -528,6 +530,7 @@ open class ZLEditImageViewController: UIViewController {
         
         let width = drawLineWidth / mainScrollView.zoomScale * toImageScale
         defaultDrawPathWidth = width
+        defaultDrawMosaicWidth = mosaicLineWidth / mainScrollView.zoomScale * toImageScale
     }
     
     override open func viewDidLayoutSubviews() {
@@ -1219,7 +1222,8 @@ open class ZLEditImageViewController: UIViewController {
                 )
                 
                 let pathW = mosaicLineWidth / mainScrollView.zoomScale
-                let path = ZLMosaicPath(pathWidth: pathW, ratio: ratio, startPoint: point)
+                
+                let path = ZLMosaicPath(pathWidth: pathW, ratio: ratio, startPoint: point, defaultLineWidth: defaultDrawMosaicWidth)
                 
                 mosaicImageLayerMaskLayer?.lineWidth = pathW
                 mosaicImageLayerMaskLayer?.path = path.path.cgPath
@@ -1294,6 +1298,7 @@ open class ZLEditImageViewController: UIViewController {
                     impactFeedback?.impactOccurred()
                 }
             }
+            
             if needDraw {
                 drawLine()
             }
@@ -1309,9 +1314,11 @@ open class ZLEditImageViewController: UIViewController {
                     impactFeedback?.impactOccurred()
                 }
             }
+            
             if needDrawMosaic {
                 generateNewMosaicImage()
             }
+            
         } else {
             eraserCircleView.isHidden = true
             if !deleteDrawPaths.isEmpty {
@@ -1566,7 +1573,6 @@ open class ZLEditImageViewController: UIViewController {
         size.width *= toImageScale
         size.height *= toImageScale
         
-        
         drawingImageView.image = UIGraphicsImageRenderer.zl.renderImage(size: size) { context in
             context.setAllowsAntialiasing(true)
             context.setShouldAntialias(true)
@@ -1630,7 +1636,6 @@ open class ZLEditImageViewController: UIViewController {
     @discardableResult
     private func generateNewMosaicImage(inputImage: UIImage? = nil, inputMosaicImage: UIImage? = nil) -> UIImage? {
         let renderRect = CGRect(origin: .zero, size: originalImage.size)
-        
         var midImage = UIGraphicsImageRenderer.zl.renderImage(size: originalImage.size) { format in
             format.scale = self.originalImage.scale
         } imageActions: { context in
@@ -1654,8 +1659,8 @@ open class ZLEditImageViewController: UIViewController {
                 
                 drawImage?.draw(in: renderRect)
             }
-            
             mosaicPaths.forEach { path in
+                path.drawPath()
                 context.move(to: path.startPoint)
                 path.linePoints.forEach { point in
                     context.addLine(to: point)
@@ -1678,8 +1683,8 @@ open class ZLEditImageViewController: UIViewController {
             originalImage.draw(in: renderRect)
             (inputMosaicImage ?? mosaicImage)?.draw(in: renderRect)
             midImage.draw(in: renderRect)
+            
         }
-        
         guard let cgi = temp.cgImage else { return nil }
         let image = UIImage(cgImage: cgi, scale: editImage.scale, orientation: .up)
         

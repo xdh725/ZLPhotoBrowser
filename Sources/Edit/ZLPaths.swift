@@ -157,7 +157,7 @@ public class ZLMosaicPath: NSObject {
     
     var willDelete = false
     
-    init(pathWidth: CGFloat, ratio: CGFloat, startPoint: CGPoint) {
+    init(pathWidth: CGFloat, ratio: CGFloat, startPoint: CGPoint, defaultLineWidth: CGFloat) {
         path = UIBezierPath()
         path.lineWidth = pathWidth
         path.lineCapStyle = .round
@@ -165,7 +165,7 @@ public class ZLMosaicPath: NSObject {
         path.move(to: startPoint)
         
         bgPath = UIBezierPath()
-        bgPath.lineWidth = pathWidth
+        bgPath.lineWidth = pathWidth/ratio + defaultLineWidth
         bgPath.lineCapStyle = .round
         bgPath.lineJoinStyle = .round
         bgPath.move(to: CGPoint(x: startPoint.x / ratio, y: startPoint.y / ratio))
@@ -181,4 +181,12 @@ public class ZLMosaicPath: NSObject {
         bgPath.addLine(to: CGPoint(x: point.x / ratio, y: point.y / ratio))
         linePoints.append(CGPoint(x: point.x / ratio, y: point.y / ratio))
     }
+    
+    func drawPath() {
+        if willDelete {
+            UIColor.white.set()
+            bgPath.stroke()
+        }
+    }
+    
 }
