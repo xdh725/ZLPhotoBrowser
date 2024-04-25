@@ -373,11 +373,12 @@ class ZLThumbnailViewController: UIViewController {
             let originBtnMaxW = min(btnMaxWidth, originBtnW)
             originalBtn.frame = CGRect(x: (bottomView.zl.width - originBtnMaxW) / 2 - 5, y: btnY, width: originBtnMaxW, height: btnH)
             
+            let offset = deviceIsiPad() ? 4 : 0
             let originalLabelH = originalLabel.font.lineHeight
             let originalLabelY = min(originalBtn.zl.bottom, bottomView.zl.height - originalLabelH)
             originalLabel.frame = CGRect(
                 x: (bottomView.zl.width - btnMaxWidth) / 2 - 5,
-                y: originalLabelY,
+                y: originalLabelY-offset,
                 width: btnMaxWidth,
                 height: originalLabelH
             )
