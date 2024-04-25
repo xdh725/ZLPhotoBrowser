@@ -1660,16 +1660,31 @@ open class ZLEditImageViewController: UIViewController {
                 drawImage?.draw(in: renderRect)
             }
             mosaicPaths.forEach { path in
-                path.drawPath()
                 context.move(to: path.startPoint)
                 path.linePoints.forEach { point in
                     context.addLine(to: point)
                 }
-                context.setLineWidth(path.path.lineWidth / path.ratio)
                 context.setLineCap(.round)
                 context.setLineJoin(.round)
-                context.setBlendMode(.clear)
-                context.strokePath()
+                if path.willDelete {
+                    //先画白色线 需要把blend模式重置成normal
+                    context.setLineWidth(path.path.lineWidth / path.ratio + defaultDrawMosaicWidth)
+                    context.setStrokeColor(UIColor.white.cgColor)
+                    context.setBlendMode(.normal)
+                    context.strokePath()
+                    //再画mask线
+                    context.move(to: path.startPoint)
+                    path.linePoints.forEach { point in
+                        context.addLine(to: point)
+                    }
+                    context.setLineWidth(path.path.lineWidth / path.ratio)
+                    context.setBlendMode(.clear)
+                    context.strokePath()
+                }else {
+                    context.setLineWidth(path.path.lineWidth / path.ratio)
+                    context.setBlendMode(.clear)
+                    context.strokePath()
+                }
             }
         }
         
