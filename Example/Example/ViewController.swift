@@ -104,6 +104,13 @@ class ViewController: UIViewController {
             make.top.equalTo(cameraBtn.snp.bottom).offset(20)
         }
         
+        let onlyEditImage = createBtn("编辑图片", #selector(onlyEditImage))
+        view.addSubview(onlyEditImage)
+        onlyEditImage.snp.makeConstraints { make in
+            make.left.equalTo(wechatMomentDemoBtn.snp.right).offset(20)
+            make.top.equalTo(cameraBtn.snp.bottom).offset(20)
+        }
+        
         let takeLabel = UILabel()
         takeLabel.font = UIFont.systemFont(ofSize: 14)
         takeLabel.textColor = .black
@@ -136,6 +143,25 @@ class ViewController: UIViewController {
         collectionView.register(ImageCell.classForCoder(), forCellWithReuseIdentifier: "ImageCell")
     }
     
+    @objc func onlyEditImage() {
+        
+        guard let image = UIImage(named: "image3") else {return}
+        ZLEditImageViewController.showEditImageVC(parentVC: self, image: image,autoDismiss: false) { vc in
+            let hud = ZLProgressHUD.show(toast: .custome("点击取消"))
+        } completion: { [weak self] result, model, vc in
+            self?.unAutoDismiss(vc: vc)
+        }
+    }
+    
+    private func unAutoDismiss(vc: UIViewController?) {
+        
+        let alert = UIAlertController(title: "提示", message: "手动关闭弹窗", preferredStyle: .alert)
+        let doneAlert = UIAlertAction(title: "关闭", style: .default) {[weak vc] _ in
+            vc?.dismiss(animated: false)
+        }
+        alert.addAction(doneAlert)
+        vc?.present(alert, animated: true)
+    }
     @objc func configureClick() {
         let vc = PhotoConfigureViewController()
         showDetailViewController(vc, sender: nil)

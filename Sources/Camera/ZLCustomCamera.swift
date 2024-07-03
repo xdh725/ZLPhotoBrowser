@@ -935,9 +935,9 @@ open class ZLCustomCamera: UIViewController {
             return
         }
         
-        ZLEditImageViewController.showEditImageVC(parentVC: self, image: takedImage) { [weak self] in
+        ZLEditImageViewController.showEditImageVC(parentVC: self, image: takedImage) { [weak self] _ in
             self?.retakeBtnClick()
-        } completion: { [weak self] editImage, _ in
+        } completion: { [weak self] editImage, _, _ in
             self?.takedImage = editImage
             self?.takedImageView.image = editImage
             self?.doneBtnClick()
