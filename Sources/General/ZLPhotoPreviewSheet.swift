@@ -705,7 +705,7 @@ public class ZLPhotoPreviewSheet: UIView {
         requestAssetID = ZLPhotoManager.fetchImage(for: model.asset, size: model.previewSize) { [weak self] image, isDegraded in
             if !isDegraded {
                 if let image = image {
-                    ZLEditImageViewController.showEditImageVC(parentVC: self?.sender, image: image, editModel: model.editImageModel) { [weak self] ei, editImageModel in
+                    ZLEditImageViewController.showEditImageVC(parentVC: self?.sender, image: image, editModel: model.editImageModel) { [weak self] ei, editImageModel, _  in
                         model.isSelected = true
                         model.editImage = ei
                         model.editImageModel = editImageModel

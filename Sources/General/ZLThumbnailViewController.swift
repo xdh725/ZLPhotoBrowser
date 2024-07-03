@@ -1024,7 +1024,7 @@ class ZLThumbnailViewController: UIViewController {
             }
             
             if let image = image {
-                ZLEditImageViewController.showEditImageVC(parentVC: self, image: image, editModel: model.editImageModel) { [weak nav] ei, editImageModel in
+                ZLEditImageViewController.showEditImageVC(parentVC: self, image: image, editModel: model.editImageModel) { [weak nav] ei, editImageModel, _ in
                     model.isSelected = true
                     model.editImage = ei
                     model.editImageModel = editImageModel

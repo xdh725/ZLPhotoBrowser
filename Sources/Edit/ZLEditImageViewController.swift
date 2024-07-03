@@ -230,6 +230,8 @@ open class ZLEditImageViewController: UIViewController {
     
     private var impactFeedback: UIImpactFeedbackGenerator?
     
+    private var autoDismiss = true//自动关闭
+    
     // 第一次进入界面时，布局后frame，裁剪dimiss动画使用
     var originalFrame: CGRect = .zero
     
@@ -412,8 +414,9 @@ open class ZLEditImageViewController: UIViewController {
         animate: Bool = false,
         image: UIImage,
         editModel: ZLEditImageModel? = nil,
-        cancel: (() -> Void)? = nil,
-        completion: ((UIImage, ZLEditImageModel?) -> Void)?
+        autoDismiss: Bool = true,
+        cancel: ((UIViewController?) -> Void)? = nil,
+        completion: ((UIImage, ZLEditImageModel?, UIViewController?) -> Void)?
     ) {
         let tools = ZLPhotoConfiguration.default().editImageConfiguration.tools
         if ZLPhotoConfiguration.default().showClipDirectlyIfOnlyHasClipTool,
@@ -423,7 +426,7 @@ open class ZLEditImageViewController: UIViewController {
                 image: image,
                 status: editModel?.clipStatus ?? ZLClipStatus(editRect: CGRect(origin: .zero, size: image.size))
             )
-            vc.clipDoneBlock = { angle, editRect, ratio in
+            vc.clipDoneBlock = {[weak vc] angle, editRect, ratio in
                 let model = ZLEditImageModel(
                     drawPaths: [],
                     mosaicPaths: [],
@@ -433,19 +436,24 @@ open class ZLEditImageViewController: UIViewController {
                     stickers: [],
                     actions: []
                 )
-                completion?(image.zl.clipImage(angle: angle, editRect: editRect, isCircle: ratio.isCircle), model)
+                completion?(image.zl.clipImage(angle: angle, editRect: editRect, isCircle: ratio.isCircle), model, vc)
             }
-            vc.cancelClipBlock = cancel
+            vc.cancelClipBlock = {[weak vc] in
+                cancel?(vc)
+            }
             vc.animate = animate
             vc.modalPresentationStyle = .fullScreen
             parentVC?.present(vc, animated: animate, completion: nil)
         } else {
             let vc = ZLEditImageViewController(image: image, editModel: editModel)
-            vc.editFinishBlock = { ei, editImageModel in
-                completion?(ei, editImageModel)
+            vc.editFinishBlock = {[weak vc] ei, editImageModel in
+                completion?(ei, editImageModel, vc)
             }
-            vc.cancelEditBlock = cancel
+            vc.cancelEditBlock = {[weak vc] in
+                cancel?(vc)
+            }
             vc.animate = animate
+            vc.autoDismiss = autoDismiss
             vc.modalPresentationStyle = .fullScreen
             parentVC?.present(vc, animated: animate, completion: nil)
         }
@@ -904,7 +912,11 @@ open class ZLEditImageViewController: UIViewController {
     }
     
     @objc private func cancelBtnClick() {
-        dismiss(animated: animate) {
+        if autoDismiss {
+            dismiss(animated: animate) {
+                self.cancelEditBlock?()
+            }
+        }else {
             self.cancelEditBlock?()
         }
     }
@@ -1107,9 +1119,13 @@ open class ZLEditImageViewController: UIViewController {
         var editModel: ZLEditImageModel?
         
         func callback() {
-            dismiss(animated: animate) {
+            if autoDismiss {
+                dismiss(animated: animate) {
+                    self.editFinishBlock?(resImage, editModel)
+                }
+            }else {
                 self.editFinishBlock?(resImage, editModel)
-            }
+            }   
         }
         
         guard hasEdit else {
