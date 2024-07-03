@@ -89,6 +89,9 @@ class ZLClipImageViewController: UIViewController {
         view.isUserInteractionEnabled = false
         view.backgroundColor = .clear
         view.isCircle = selectedRatio.isCircle
+        if selectedRatio.title == "user_avatar" {
+            view.isCircle = true
+        }
         return view
     }()
     
@@ -96,6 +99,9 @@ class ZLClipImageViewController: UIViewController {
         let view = ZLClipOverlayView()
         view.isUserInteractionEnabled = false
         view.isCircle = selectedRatio.isCircle
+        if selectedRatio.title == "user_avatar" {
+            view.isCircle = true
+        }
         return view
     }()
     
