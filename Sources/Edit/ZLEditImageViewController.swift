@@ -278,6 +278,16 @@ open class ZLEditImageViewController: UIViewController {
         view.minimumZoomScale = minimumZoomScale
         view.maximumZoomScale = 3
         view.delegate = self
+        if #available(iOS 13.0, *) {
+            view.automaticallyAdjustsScrollIndicatorInsets = false
+        } else {
+            // Fallback on earlier versions
+        }
+        if #available(iOS 11.0, *) {
+            view.contentInsetAdjustmentBehavior = .never
+        } else {
+            // Fallback on earlier versions
+        }
         return view
     }()
     
@@ -431,6 +441,52 @@ open class ZLEditImageViewController: UIViewController {
         cleanToolViewStateTimer()
         zl_debugPrint("ZLEditImageViewController deinit")
     }
+    
+    @objc public class func newShowEditImageVC(
+        animate: Bool = false,
+        image: UIImage,
+        editModel: ZLEditImageModel? = nil,
+        autoDismiss: Bool = true,
+        cancel: ((UIViewController?) -> Void)? = nil,
+        completion: ((UIImage, ZLEditImageModel?, UIViewController?) -> Void)?) -> UIViewController {
+        let tools = ZLPhotoConfiguration.default().editImageConfiguration.tools
+        if ZLPhotoConfiguration.default().showClipDirectlyIfOnlyHasClipTool,
+               tools.count == 1,
+               tools.contains(.clip) {
+                let vc = ZLClipImageViewController(
+                    image: image,
+                    status: editModel?.clipStatus ?? ZLClipStatus(editRect: CGRect(origin: .zero, size: image.size))
+                )
+                vc.clipDoneBlock = {[weak vc] angle, editRect, ratio in
+                    let model = ZLEditImageModel(
+                        drawPaths: [],
+                        mosaicPaths: [],
+                        clipStatus: ZLClipStatus(angle: angle, editRect: editRect, ratio: ratio),
+                        adjustStatus: ZLAdjustStatus(),
+                        selectFilter: .normal,
+                        stickers: [],
+                        actions: []
+                    )
+                    completion?(image.zl.clipImage(angle: angle, editRect: editRect, isCircle: ratio.isCircle), model, vc)
+                }
+                vc.cancelClipBlock = {[weak vc] in
+                    cancel?(vc)
+                }
+                vc.animate = animate
+                return vc
+            } else {
+                let vc = ZLEditImageViewController(image: image, editModel: editModel)
+                vc.editFinishBlock = {[weak vc] ei, editImageModel in
+                    completion?(ei, editImageModel, vc)
+                }
+                vc.cancelEditBlock = {[weak vc] in
+                    cancel?(vc)
+                }
+                vc.animate = animate
+                vc.autoDismiss = autoDismiss
+                return vc
+            }
+        }
     
     @objc public class func showEditImageVC(
         parentVC: UIViewController?,
@@ -1007,19 +1063,24 @@ open class ZLEditImageViewController: UIViewController {
                 isCircle: currentClipStatus.ratio?.isCircle ?? false
             )
         vc.modalPresentationStyle = .fullScreen
-        
         vc.clipDoneBlock = { [weak self] angle, editRect, selectRatio in
             guard let `self` = self else { return }
             
             self.clipImage(status: ZLClipStatus(editRect: editRect, angle: angle, ratio: selectRatio))
             self.editorManager.storeAction(.clip(oldStatus: self.preClipStatus, newStatus: self.currentClipStatus))
+            if self.navigationController != nil {//root是nav裁剪控制器的转场不会走，需要手动调显示
+                self.finishClipDismissAnimate()
+            }
         }
         
         vc.cancelClipBlock = { [weak self] () in
             self?.resetContainerViewFrame()
+            if self?.navigationController != nil {//root是nav裁剪控制器的转场不会走，需要手动调显示
+                self?.finishClipDismissAnimate()
+            }
         }
         
-        present(vc, animated: false) {
+        self.present(vc, animated: false) {
             self.mainScrollView.alpha = 0
             self.topShadowView.alpha = 0
             self.bottomShadowView.alpha = 0

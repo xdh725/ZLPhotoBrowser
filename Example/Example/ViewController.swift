@@ -146,11 +146,20 @@ class ViewController: UIViewController {
     @objc func onlyEditImage() {
         
         guard let image = UIImage(named: "image3") else {return}
-        ZLEditImageViewController.showEditImageVC(parentVC: self, image: image,autoDismiss: false) { vc in
-            let hud = ZLProgressHUD.show(toast: .custome("点击取消"))
-        } completion: { [weak self] result, model, vc in
-            self?.unAutoDismiss(vc: vc)
+        
+        let editVC = ZLEditImageViewController.newShowEditImageVC(image: image, autoDismiss: false) { tempvc in
+//            tempvc?.dismiss(animated: false)
+            tempvc?.navigationController?.popViewController(animated: false)
+        } completion: { result, _, tempvc in
+            
         }
+        self.navigationController?.pushViewController(editVC, animated: false)
+        
+//        ZLEditImageViewController.showEditImageVC(parentVC: self, image: image,autoDismiss: false) { vc in
+//            let hud = ZLProgressHUD.show(toast: .custome("点击取消"))
+//        } completion: { [weak self] result, model, vc in
+//            self?.unAutoDismiss(vc: vc)
+//        }
     }
     
     private func unAutoDismiss(vc: UIViewController?) {
