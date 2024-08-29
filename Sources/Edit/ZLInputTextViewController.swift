@@ -59,6 +59,7 @@ class ZLInputTextViewController: UIViewController {
     private lazy var cancelBtn: UIButton = {
         let btn = UIButton(type: .custom)
         btn.setTitle(localLanguageTextValue(.cancel), for: .normal)
+        btn.setTitleColor(.zl.bottomToolViewDoneBtnNormalTitleColor, for: .normal)
         btn.titleLabel?.font = ZLLayout.bottomToolTitleFont
         btn.addTarget(self, action: #selector(cancelBtnClick), for: .touchUpInside)
         return btn
@@ -138,7 +139,7 @@ class ZLInputTextViewController: UIViewController {
     var endInput: ((String, UIColor, UIFont, UIImage?, ZLInputTextStyle) -> Void)?
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        return .portrait
+        deviceIsiPhone() ? .portrait : .all
     }
     
     override var prefersStatusBarHidden: Bool {

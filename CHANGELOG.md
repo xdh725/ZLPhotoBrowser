@@ -2,6 +2,54 @@
 
 -----
 
+## [4.5.4](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.4) (2024-07-05)
+### Add:
+* Support iOS18. [#909](https://github.com/longitachi/ZLPhotoBrowser/pull/909) @patryk-sredzinski
+* Enhance the user experience of the image cropping interface and optimize the animation effects.
+* Support for setting `VideoMirrored` in the custom camera. [#912](https://github.com/longitachi/ZLPhotoBrowser/issues/912)
+  
+### Fix:
+* Fix the issue where some UI elements are displayed incorrectly on phones without a notch. [#914](https://github.com/longitachi/ZLPhotoBrowser/issues/914)
+  
+---
+
+## [4.5.3](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.3) (2024-05-23)
+### Add:
+* Support customizing the alert for when there is no permission. [#900](https://github.com/longitachi/ZLPhotoBrowser/pull/900) @xiaoyouPrince
+* Add configuration option to center tools in tools collection view. [#903](https://github.com/longitachi/ZLPhotoBrowser/pull/903) @patryk-sredzinski
+
+### Fix:
+* Fix the bug where the crop ratio view is not hidden when there is only one ratio in the cropping interface.
+* Fix a bug that may cause failure when saving images from iCloud to local storage. [#901](https://github.com/longitachi/ZLPhotoBrowser/pull/901) @ilfocus
+
+---
+    
+## [4.5.2](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.2) (2024-04-15)
+### Fix:
+* Fix the bug in the image cropping interface where the image is not displayed correctly when zooming in and the crop ratio is not 0.
+
+---
+    
+## [4.5.1](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.1) (2024-03-29)
+### Add:
+* Add xcprivacy file to the project.
+
+### Fix:
+* Fix the bug causing a crash when continuously switching between front and rear cameras. [#894](https://github.com/longitachi/ZLPhotoBrowser/issues/894)
+* Fix the bug where the status bar in the album thumbnail interface sometimes does not display.
+
+---
+
+## [4.5.0](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.0) (2024-03-21)
+### Add:
+* Adapt the text sticker input interface for iPad landscape mode.
+
+### Fix:
+* Resolve the issue causing errors during SPM installation. [#892](https://github.com/longitachi/ZLPhotoBrowser/issues/892)
+* Fix the bug where cropping square images to circular shape fails. [#893](https://github.com/longitachi/ZLPhotoBrowser/pull/893) @patryk-sredzinski
+
+---
+
 ## [4.4.9](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.4.9) (2024-02-02)
 ### Add:
 * Support for setting the initial index of the first image.

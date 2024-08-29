@@ -91,24 +91,23 @@ If you only want to use the image edit feature, please move to [ZLImageEditor](h
 ### Change Log
 > [More logs](https://github.com/longitachi/ZLPhotoBrowser/blob/master/CHANGELOG.md)
 ```
-● 4.4.9
+● 4.5.4
   Add:
-    Support for setting the initial index of the first image.
-    Define the text for the "Done" button on different screens with different keys to facilitate customizing the text.
-● 4.4.8.1 - 4.4.8.2 (4.4.8 Patch)
+    Support iOS18.
+    Enhance the user experience of the image cropping interface and optimize the animation effects.
+    Support for setting `VideoMirrored` in the custom camera.
   Fix:
-    Fix the bug where the camera does not disappear when clicking cancel in the system camera.
-● 4.4.8
+    Fix the issue where some UI elements are displayed incorrectly on phones without a notch.
+● 4.5.3
   Add:
-    Adapt to iOS 17, replace UIGraphicsBeginImageContextWithOptions with UIGraphicsImageRenderer.
+    Support customizing the alert for when there is no permission.
+    Add configuration option to center tools in tools collection view.
   Fix:
-    Fix the bug in ZLImagePreviewController where videos cannot be played.
-● 4.4.7
-  Add:
-    Enhancing the drawing tool with an eraser function.
-    Display the total size of selected photos when the full image button is selected.
+    Fix the bug where the crop ratio view is not hidden when there is only one ratio in the cropping interface.
+    Fix a bug that may cause failure when saving images from iCloud to local storage.
+● 4.5.2
   Fix:
-    Fix a bug where the video's start time is incorrect when cropping the video.
+    Fix the bug in the image cropping interface where the image is not displayed correctly when zooming in and the crop ratio is not 0.
 ...
 ```
 
@@ -164,7 +163,7 @@ Rebuild with --use-xcframeworks to create an xcframework bundle instead.` [Click
 
 #### Swift Package Manager
 1. Select File > Add Packages. Enter https://github.com/longitachi/ZLPhotoBrowser.git in the "Choose Package Repository" dialog.
-2. In the next page, specify the version resolving rule as "Up to Next Major" with "4.4.9" as its earliest version.
+2. In the next page, specify the version resolving rule as "Up to Next Major" with "4.5.4" as its earliest version.
 3. After Xcode checking out the source and resolving the version, you can choose the "ZLPhotoBrowser" library and add it to your app target.
 
 ### Support

@@ -29,7 +29,7 @@ import AVFoundation
 import CoreMotion
 
 open class ZLCustomCamera: UIViewController {
-    enum Layout {
+    public enum Layout {
         static let bottomViewH: CGFloat = 120
         static let largeCircleRadius: CGFloat = 80
         static let smallCircleRadius: CGFloat = 65
@@ -205,6 +205,8 @@ open class ZLCustomCamera: UIViewController {
     
     private var restartRecordAfterSwitchCamera = false
     
+    private var isSwitchingCamera = false
+    
     private var cacheVideoOrientation: AVCaptureVideoOrientation = .portrait
     
     private var recordURLs: [URL] = []
@@ -240,7 +242,7 @@ open class ZLCustomCamera: UIViewController {
     
     // 仅支持竖屏
     override public var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        return .portrait
+        deviceIsiPhone() ? .portrait : .all
     }
     
     override public var prefersStatusBarHidden: Bool {
@@ -663,7 +665,11 @@ open class ZLCustomCamera: UIViewController {
         let action = ZLCustomAlertAction(title: localLanguageTextValue(.done), style: .default) { [weak self] _ in
             self?.dismiss(animated: true) {
                 if let type = type {
-                    ZLPhotoConfiguration.default().noAuthorityCallback?(type)
+                    if let customAlertWhenNoAuthority = ZLPhotoConfiguration.default().customAlertWhenNoAuthority {
+                        customAlertWhenNoAuthority(type)
+                    } else {
+                        ZLPhotoConfiguration.default().noAuthorityCallback?(type)
+                    }
                 }
             }
         }
@@ -779,12 +785,11 @@ open class ZLCustomCamera: UIViewController {
     }
     
     @objc private func switchCameraBtnClick() {
-        guard !restartRecordAfterSwitchCamera else {
+        guard !restartRecordAfterSwitchCamera, !isSwitchingCamera else {
             return
         }
         
-        guard let currInput = videoInput,
-              let movieFileOutput = movieFileOutput else {
+        guard let videoInput, let movieFileOutput else {
             return
         }
         
@@ -795,8 +800,15 @@ open class ZLCustomCamera: UIViewController {
             restartRecordAfterSwitchCamera = true
         }
         
+        isSwitchingCamera = true
         sessionQueue.async {
             do {
+                defer {
+                    self.isSwitchingCamera = false
+                }
+                
+                let currInput = videoInput
+                
                 var newVideoInput: AVCaptureDeviceInput?
                 if currInput.device.position == .back, let front = self.getCamera(position: .front) {
                     newVideoInput = try AVCaptureDeviceInput(device: front)
@@ -806,7 +818,7 @@ open class ZLCustomCamera: UIViewController {
                     return
                 }
                 
-                if let newVideoInput = newVideoInput {
+                if let newVideoInput {
                     self.session.beginConfiguration()
                     
                     self.refreshSessionPreset(device: newVideoInput.device)
@@ -882,7 +894,7 @@ open class ZLCustomCamera: UIViewController {
         let connection = imageOutput.connection(with: .video)
         connection?.videoOrientation = orientation
         if videoInput?.device.position == .front, connection?.isVideoMirroringSupported == true {
-            connection?.isVideoMirrored = true
+            connection?.isVideoMirrored = ZLPhotoConfiguration.default().cameraConfiguration.isVideoMirrored
         }
         let setting = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecJPEG])
         if videoInput?.device.hasFlash == true, flashBtn.isSelected {
@@ -1111,7 +1123,7 @@ open class ZLCustomCamera: UIViewController {
         if videoInput?.device.position == .front {
             // 镜像设置
             if connection?.isVideoMirroringSupported == true {
-                connection?.isVideoMirrored = true
+                connection?.isVideoMirrored = ZLPhotoConfiguration.default().cameraConfiguration.isVideoMirrored
             }
             closeTorch()
         } else {
@@ -1246,8 +1258,12 @@ extension ZLCustomCamera: AVCapturePhotoCaptureDelegate {
 
 extension ZLCustomCamera: AVCaptureFileOutputRecordingDelegate {
     public func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
-        guard recordLongGes?.state != .possible else {
-            finishRecordAndMergeVideo()
+        /*
+         recordLongGes?.state != .possible这个判断是为了防止在按钮上快速拖拽一下，然后手指马上离开
+         此时在adjustCameraFocus方法中已经触发了开始录制，然后在该方法回调前手势结束又触发了停止录制。 这时候要在这里调用finishRecord
+         */
+        guard recordLongGes?.state != .possible || dragStart else {
+            finishRecord()
             return
         }
         
