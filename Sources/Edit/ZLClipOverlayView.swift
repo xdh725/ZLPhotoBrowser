@@ -105,7 +105,7 @@ class ZLClipOverlayView: UIView {
             shadowMaskLayer.path = getShadowMaskLayerPath().cgPath
         }
     }
-    
+    var isEditing = false
     override init(frame: CGRect) {
         super.init(frame: frame)
         
