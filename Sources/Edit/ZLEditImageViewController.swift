@@ -452,9 +452,11 @@ open class ZLEditImageViewController: UIViewController {
         editModel: ZLEditImageModel? = nil,
         autoDismiss: Bool = true,
         cancel: ((UIViewController?) -> Void)? = nil,
-        completion: ((UIImage, ZLEditImageModel?, UIViewController?) -> Void)?) -> UIViewController {
+        completion: ((UIImage, ZLEditImageModel?, UIViewController?) -> Void)?) -> UIViewController
+    {
         let tools = ZLPhotoConfiguration.default().editImageConfiguration.tools
-        if ZLPhotoConfiguration.default().showClipDirectlyIfOnlyHasClipTool,
+        let editConfig = ZLPhotoConfiguration.default().editImageConfiguration
+        if editConfig.showClipDirectlyIfOnlyHasClipTool,
                tools.count == 1,
                tools.contains(.clip) {
                 let vc = ZLClipImageViewController(
@@ -465,7 +467,7 @@ open class ZLEditImageViewController: UIViewController {
                     let model = ZLEditImageModel(
                         drawPaths: [],
                         mosaicPaths: [],
-                        clipStatus: ZLClipStatus(angle: angle, editRect: editRect, ratio: ratio),
+                        clipStatus: ZLClipStatus(editRect: editRect, angle: angle, ratio: ratio),
                         adjustStatus: ZLAdjustStatus(),
                         selectFilter: .normal,
                         stickers: [],
