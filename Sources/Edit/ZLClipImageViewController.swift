@@ -223,9 +223,9 @@ open class ZLClipImageViewController: UIViewController {
     var dismissAnimateImage: UIImage?
     
     /// 传回旋转角度，图片编辑区域的rect
-    var clipDoneBlock: ((CGFloat, CGRect, ZLImageClipRatio) -> Void)?
+    open var clipDoneBlock: ((CGFloat, CGRect, ZLImageClipRatio) -> Void)?
     
-    var cancelClipBlock: (() -> Void)?
+    open var cancelClipBlock: (() -> Void)?
     
     open override var prefersStatusBarHidden: Bool { true }
     
@@ -243,7 +243,7 @@ open class ZLClipImageViewController: UIViewController {
         cleanTimer()
     }
     
-    init(image: UIImage, status: ZLClipStatus) {
+    public init(image: UIImage, status: ZLClipStatus) {
         originalImage = image
         let configuration = ZLPhotoConfiguration.default().editImageConfiguration
         clipRatios = configuration.clipRatios
@@ -272,6 +272,37 @@ open class ZLClipImageViewController: UIViewController {
         }
     }
     
+    public init(image: UIImage) {
+        originalImage = image
+        let status = ZLClipStatus(editRect: CGRect(origin: .zero, size: image.size))
+        let configuration = ZLPhotoConfiguration.default().editImageConfiguration
+        configuration.tools([.clip]).clipRatios([ZLImageClipRatio(title: "user_avatar", whRatio: 1, isCircle: false)])
+        clipRatios = configuration.clipRatios
+        editRect = status.editRect
+        angle = status.angle
+        let angle = ((Int(angle) % 360) - 360) % 360
+        if angle == -90 {
+            editImage = image.zl.rotate(orientation: .left)
+        } else if angle == -180 {
+            editImage = image.zl.rotate(orientation: .down)
+        } else if angle == -270 {
+            editImage = image.zl.rotate(orientation: .right)
+        } else {
+            editImage = image
+        }
+        var firstEnter = false
+        if let ratio = status.ratio {
+            selectedRatio = ratio
+        } else {
+            firstEnter = true
+            selectedRatio = ZLPhotoConfiguration.default().editImageConfiguration.clipRatios.first!
+        }
+        super.init(nibName: nil, bundle: nil)
+        if firstEnter {
+            calculateClipRect()
+        }
+    }
+
     @available(*, unavailable)
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
