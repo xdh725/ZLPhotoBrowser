@@ -129,6 +129,13 @@ class ViewController: UIViewController {
             make.centerY.equalTo(takeLabel.snp.centerY)
         }
         
+        let cropImage = createBtn("裁剪图片", #selector(cropImage))
+        view.addSubview(cropImage)
+        cropImage.snp.makeConstraints { make in
+            make.left.equalTo(takeLabel.snp.left)
+            make.top.equalTo(takeLabel.snp.bottom).offset(20)
+        }
+        
         let layout = UICollectionViewFlowLayout()
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
@@ -136,11 +143,31 @@ class ViewController: UIViewController {
         collectionView.dataSource = self
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints { make in
-            make.top.equalTo(takeLabel.snp.bottom).offset(30)
+            make.top.equalTo(cropImage.snp.bottom).offset(30)
             make.left.bottom.right.equalToSuperview()
         }
         
         collectionView.register(ImageCell.classForCoder(), forCellWithReuseIdentifier: "ImageCell")
+    }
+    
+    @objc func cropImage() {
+        
+        let editImageConfiguration = ZLPhotoConfiguration.default().editImageConfiguration
+        editImageConfiguration.tools([.clip]).clipRatios([ZLImageClipRatio(title: "user_avatar", whRatio: 1, isCircle: false)])
+        editImageConfiguration.showClipDirectlyIfOnlyHasClipTool = true
+        ZLPhotoConfiguration.default()
+            .editImageConfiguration(editImageConfiguration)
+            .editAfterSelectThumbnailImage(true)
+            .saveNewImageAfterEdit(false)
+            .maxSelectCount(1)
+            .allowSelectVideo(false)
+            .allowSelectGif(false)
+        let picker = ZLPhotoPreviewSheet()
+        picker.selectImageBlock = { result, isSucceed in
+            
+           
+        }
+        picker.showPhotoLibrary(sender: self)
     }
     
     @objc func onlyEditImage() {

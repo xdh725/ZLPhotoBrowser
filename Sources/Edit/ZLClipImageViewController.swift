@@ -104,7 +104,7 @@ open class ZLClipImageViewController: UIViewController {
         }
         return view
     }()
-    
+//    private lazy var frameView: anima
     private lazy var gridPanGes: UIPanGestureRecognizer = {
         let pan = UIPanGestureRecognizer(target: self, action: #selector(gridGesPanAction(_:)))
         pan.delegate = self
@@ -394,6 +394,9 @@ open class ZLClipImageViewController: UIViewController {
         view.addSubview(mainScrollView)
         mainScrollView.addSubview(containerView)
         containerView.addSubview(imageView)
+        if let frameView = selectedRatio.frameView {
+            view.addSubview(frameView)
+        }
         view.addSubview(overlayView)
         
         view.addSubview(bottomToolView)
@@ -436,7 +439,11 @@ open class ZLClipImageViewController: UIViewController {
         var insets = deviceSafeAreaInsets()
         insets.top += 20
         var rect = CGRect.zero
-        rect.origin.x = 15
+        var offsetx: CGFloat = 15
+        if selectedRatio.frameView != nil {
+            offsetx = 45
+        }
+        rect.origin.x = offsetx
         rect.origin.y = insets.top
         rect.size.width = UIScreen.main.bounds.width - 15 * 2
         rect.size.height = UIScreen.main.bounds.height - insets.top - ZLClipImageViewController.bottomToolViewH - ZLClipImageViewController.clipRatioItemSize.height - 25
@@ -551,7 +558,14 @@ open class ZLClipImageViewController: UIViewController {
         
         clipBoxFrame = frame
         overlayView.updateLayers(frame, animate: animate, endEditing: endEditing)
-        
+        if selectedRatio.frameView != nil {
+            var newFrame = frame
+            newFrame.origin.x -= 45
+            newFrame.origin.y -= 45
+            newFrame.size.width += 90
+            newFrame.size.height += 90
+            selectedRatio.frameView?.frame = newFrame
+        }
         if updateInset {
             updateMainScrollViewContentInsetAndScale()
         }
