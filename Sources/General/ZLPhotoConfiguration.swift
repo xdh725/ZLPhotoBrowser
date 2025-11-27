@@ -203,8 +203,17 @@ public class ZLPhotoConfiguration: NSObject {
     /// Display the index of the selected photos. Defaults to true.
     public var showSelectedIndex = true
     
+    private var _maxEditVideoTime: ZLPhotoConfiguration.Second = 10
     /// Maximum cropping time when editing video, unit: second. Defaults to 10.
-    public var maxEditVideoTime: ZLPhotoConfiguration.Second = 10
+    /// - Note: The minimum value must be greater than 1.
+    public var maxEditVideoTime: ZLPhotoConfiguration.Second {
+        get {
+            _maxEditVideoTime
+        }
+        set {
+            _maxEditVideoTime = max(1, newValue)
+        }
+    }
     
     /// Allow to choose the maximum duration of the video. Defaults to 120.
     public var maxSelectVideoDuration: ZLPhotoConfiguration.Second = 120
@@ -238,11 +247,14 @@ public class ZLPhotoConfiguration: NSObject {
     /// This block will be called when cancel selecting an asset.
     public var didDeselectAsset: ((PHAsset) -> Void)?
     
+    /// This block will be called when clicking the camera button in the library.
+    public var canEnterCamera: (() -> Bool)?
+    
     /// The maximum number of frames for GIF images. To avoid crashes due to memory spikes caused by loading GIF images with too many frames, it is recommended that this value is not too large. Defaults to 50.
     public var maxFrameCountForGIF = 50
     
     /// You can use this block to customize the playback of GIF images to achieve better results. For example, use FLAnimatedImage to play GIFs. Defaults to nil.
-    public var gifPlayBlock: ((UIImageView, Data, [AnyHashable: Any]?) -> Void)?
+    public var gifPlayBlock: ((UIImageView, Data, PHAsset, [AnyHashable: Any]?) -> Void)?
     
     /// Pause GIF image playback, used together with gifPlayBlock. Defaults to nil.
     public var pauseGIFBlock: ((UIImageView) -> Void)?

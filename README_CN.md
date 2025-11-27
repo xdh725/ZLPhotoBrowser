@@ -37,8 +37,10 @@ ZLPhotoBrowser是一款微信样式的图片选择器，支持预览/相册内�
 
 ### 功能介绍
 你想要的应有尽有，部分功能如下，更多功能请查看 `ZLPhotoConfiguration` 中的参数定义（没有的话欢迎提 issue ，功能建议好的话会采纳并着手开发）
+- [x] 支持SwiftUI
 - [x] 支持横竖屏
 - [x] 自选框架样式
+- [x] 支持分页加载
 - [x] 预览快速选择（支持拖拽选择，效果参照QQ）
 - [x] 相册内部选择（支持滑动选择）
 - [x] 图片/Gif/LivePhoto/Video 混合选择
@@ -62,25 +64,25 @@ ZLPhotoBrowser是一款微信样式的图片选择器，支持预览/相册内�
 ### 框架支持
  * iOS 10.0
  * Swift 5.x
- * Xcode 12.x
+ * Xcode 14.x
  
 ### 使用示例
  - 快速选择
  ```
- let ps = ZLPhotoPreviewSheet()
- ps.selectImageBlock = { [weak self] results, isOriginal in
+ let picker = ZLPhotoPicker()
+ picker.selectImageBlock = { [weak self] results, isOriginal in
      // your code
  }
- ps.showPreview(animate: true, sender: self)
+ picker.showPreview(animate: true, sender: self)
  ```
  
  - 直接进入相册选择
  ```
- let ps = ZLPhotoPreviewSheet()
- ps.selectImageBlock = { [weak self] results, isOriginal in
+ let picker = ZLPhotoPreviewSheet()
+ picker.selectImageBlock = { [weak self] results, isOriginal in
      // your code
  }
- ps.showPhotoLibrary(sender: self)
+ picker.showPhotoLibrary(sender: self)
  ```
  
  - 需要注意的地方，你需要在你app的 `Info.plist` 中添加如下键值对
@@ -102,23 +104,26 @@ ZLPhotoBrowser是一款微信样式的图片选择器，支持预览/相册内�
 ### 更新日志
 > [更多更新日志](https://github.com/longitachi/ZLPhotoBrowser/blob/master/CHANGELOG.md)
 ```
-● 4.5.4
+● 4.7.3
+  Fix:
+    修复编辑图片时，橡皮擦位置显示不正确的问题
+● 4.7.2
   Add:
-    支持iOS18。
-    提升图片编辑的使用体验，优化动画效果。
-    自定义相机支持设置`VideoMirrored`。
+    优化视频编辑体验：
+      1. 非选中区域增加阴影遮罩
+      2. 增加当前选中区域时长显示
+    ZLImagePreviewController界面支持禁止下拉返回手势
+    修改ZLPhotoPreviewSheet的权限为private
   Fix:
-    修复在非刘海屏的手机上，部分界面UI展示异常的问题。
-● 4.5.3
+    修复权限为"limited"时，小图界面UI可能显示错误的bug
+● 4.7.0.1
   Add:
-    支持自定义无权限弹窗。
-    支持图片编辑工具在较少时居中排列。
-  Fix:
-    修复图片裁剪比例仅有一个时初次不显示的bug.
-    修复保存iCloud的资源时，可能报错的bug.
-● 4.5.2
-  Fix:
-    修复图片裁剪界面，裁减比例不为0时，缩放图片时候，图片显示不正确的bug。
+    支持分页加载。
+    小图界面支持边缘侧滑返回。
+    提供一个block，外界可以通过该block去控制是否允许进入相机。
+    替换一些过期的API。
+    ZLImagePreviewController中更多的类型支持长按手势，并允许给网络视频设置封面图。
+    ZLImagePreviewController界面支持禁止下拉返回手势。
 ...
 ```
 
@@ -136,14 +141,14 @@ ZLPhotoBrowser是一款微信样式的图片选择器，支持预览/相册内�
   > 如找不到最新版本，可首先执行`pod repo update`
   
 * Carthage
-  * 1.在Cartfile 中添加 `github "longitachi/ZLPhotoBrowser" ~> 4.0.0`
+  * 1.在Cartfile 中添加 `github "longitachi/ZLPhotoBrowser"`
   * 2.执行 `$ carthage update`
   > 如果执行时遇到`Building universal frameworks with common architectures is not possible. The device and simulator slices for "ZLPhotoBrowser" both build for: arm64
   Rebuild with --use-xcframeworks to create an xcframework bundle instead.`这个错误，点击[这里](https://github.com/Carthage/Carthage/blob/master/Documentation/Xcode12Workaround.md)
   
-* Swift Package Manager (该方式集成暂时有问题，图片及多语言资源无法读取，请暂时先用其他方式)
+* Swift Package Manager
   * 1. 选择 File > Swift Packages > Add Package Dependency，输入 `https://github.com/longitachi/ZLPhotoBrowser.git`
-  * 2. 输入对应版本号（SPM 最低版本为 `4.0.9`）
+  * 2. 输入对应版本号（SPM 最低版本为 `4.7.3`）
   * 3. 等Xcode下载完成后确定即可
 
 ### 支持

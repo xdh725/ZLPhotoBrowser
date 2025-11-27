@@ -29,8 +29,10 @@ Detailed usage of `Swift` and `OC`, please refer to [Wiki](https://github.com/lo
 If you only want to use the image edit feature, please move to [ZLImageEditor](https://github.com/longitachi/ZLImageEditor).
 
 ### Features
+- [x] Support SwiftUI.
 - [x] Portrait and landscape.
 - [x] Two framework style.
+- [x] Support page loading.
 - [x] Preview selection (Support drag and drop).
 - [x] Library selection (Support sliding selection).
 - [x] Image/Gif/LivePhoto/Video.
@@ -53,25 +55,25 @@ If you only want to use the image edit feature, please move to [ZLImageEditor](h
 ### Requirements
  * iOS 10.0
  * Swift 5.x
- * Xcode 13.x
+ * Xcode 14.x
  
 ### Usage
  - Preview selection
  ```swift
- let ps = ZLPhotoPreviewSheet()
- ps.selectImageBlock = { [weak self] results, isOriginal in
+ let picker = ZLPhotoPicker()
+ picker.selectImageBlock = { [weak self] results, isOriginal in
      // your code
  }
- ps.showPreview(animate: true, sender: self)
+ picker.showPreview(animate: true, sender: self)
  ```
  
  - Library selection
  ```swift
- let ps = ZLPhotoPreviewSheet()
- ps.selectImageBlock = { [weak self] results, isOriginal in
+ let picker = ZLPhotoPicker()
+ picker.selectImageBlock = { [weak self] results, isOriginal in
      // your code
  }
- ps.showPhotoLibrary(sender: self)
+ picker.showPhotoLibrary(sender: self)
  ```
  
  - Pay attention, you need to add the following key-value pairs in your app's Info.plist
@@ -91,23 +93,26 @@ If you only want to use the image edit feature, please move to [ZLImageEditor](h
 ### Change Log
 > [More logs](https://github.com/longitachi/ZLPhotoBrowser/blob/master/CHANGELOG.md)
 ```
-● 4.5.4
+● 4.7.3
+  Fix:
+    Fixed the issue where the eraser position was displayed incorrectly when editing pictures.
+● 4.7.2
   Add:
-    Support iOS18.
-    Enhance the user experience of the image cropping interface and optimize the animation effects.
-    Support for setting `VideoMirrored` in the custom camera.
+    Improved video editing experience:
+      1. Added a shadow area mask for a clearer view of the currently selected video clip.
+      2. Added a feature to display the duration of the currently selected clip.
+    The ZLImagePreviewController interface supports disabling the pull-down return gesture.
+    Change the permission of ZLPhotoPreviewSheet to private.
   Fix:
-    Fix the issue where some UI elements are displayed incorrectly on phones without a notch.
-● 4.5.3
+    Fixed a bug where the UI of the thumbnail interface might display an error when the permission is "limited".
+● 4.7.0.1
   Add:
-    Support customizing the alert for when there is no permission.
-    Add configuration option to center tools in tools collection view.
-  Fix:
-    Fix the bug where the crop ratio view is not hidden when there is only one ratio in the cropping interface.
-    Fix a bug that may cause failure when saving images from iCloud to local storage.
-● 4.5.2
-  Fix:
-    Fix the bug in the image cropping interface where the image is not displayed correctly when zooming in and the crop ratio is not 0.
+    Support page loading.
+    The thumbnail interface supports edge sliding back gesture.
+    Provide a block that enables external control over whether the camera interface can be accessed.
+    Replace some deprecated APIs.
+    Support long-press gestures for more data types in ZLImagePreviewController. Support setting cover images for network videos.
+    The ZLImagePreviewController interface supports disabling the pull-down return gesture.
 ...
 ```
 
@@ -163,7 +168,7 @@ Rebuild with --use-xcframeworks to create an xcframework bundle instead.` [Click
 
 #### Swift Package Manager
 1. Select File > Add Packages. Enter https://github.com/longitachi/ZLPhotoBrowser.git in the "Choose Package Repository" dialog.
-2. In the next page, specify the version resolving rule as "Up to Next Major" with "4.5.4" as its earliest version.
+2. In the next page, specify the version resolving rule as "Up to Next Major" with "4.7.3" as its earliest version.
 3. After Xcode checking out the source and resolving the version, you can choose the "ZLPhotoBrowser" library and add it to your app target.
 
 ### Support

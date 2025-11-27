@@ -294,7 +294,9 @@ open class ZLEditImageViewController: UIViewController {
     // 上方渐变阴影层
     @objc public lazy var topShadowView: ZLPassThroughView = {
         let shadowView = ZLPassThroughView()
-        shadowView.findResponderSticker = findResponderSticker(_:)
+        shadowView.findResponderSticker = { [weak self] point -> UIView? in
+            self?.findResponderSticker(point)
+        }
         return shadowView
     }()
     
@@ -308,7 +310,9 @@ open class ZLEditImageViewController: UIViewController {
     // 下方渐变阴影层
     @objc public lazy var bottomShadowView: ZLPassThroughView = {
         let shadowView = ZLPassThroughView()
-        shadowView.findResponderSticker = findResponderSticker(_:)
+        shadowView.findResponderSticker = { [weak self] point -> UIView? in
+            self?.findResponderSticker(point)
+        }
         return shadowView
     }()
     
@@ -550,7 +554,12 @@ open class ZLEditImageViewController: UIViewController {
         originalImage = image.zl.fixOrientation()
         editImage = originalImage
         editImageWithoutAdjust = originalImage
-        currentClipStatus = editModel?.clipStatus ?? ZLClipStatus(editRect: CGRect(origin: .zero, size: image.size))
+        currentClipStatus = editModel?.clipStatus ?? ZLClipStatus(editRect: CGRect(origin: .zero, size: originalImage.size))
+        if !currentClipStatus.editRect.width.isNormal ||
+            !currentClipStatus.editRect.height.isNormal {
+            currentClipStatus.editRect.size = originalImage.size
+        }
+        
         preClipStatus = currentClipStatus
         drawColors = editConfig.drawColors
         currentFilter = editModel?.selectFilter ?? .normal
@@ -626,7 +635,7 @@ open class ZLEditImageViewController: UIViewController {
         zl_debugPrint("edit image layout subviews")
         var insets = UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
         if #available(iOS 11.0, *) {
-            insets = self.view.safeAreaInsets
+            insets = view.safeAreaInsets
         }
         insets.top = max(20, insets.top)
         
@@ -1397,19 +1406,7 @@ open class ZLEditImageViewController: UIViewController {
         }
         
         if pan.state == .began || pan.state == .changed {
-            var transform: CGAffineTransform = .identity
-            
-            let angle = ((Int(currentClipStatus.angle) % 360) + 360) % 360
-            let drawingImageViewSize = drawingImageView.frame.size
-            if angle == 90 {
-                transform = transform.translatedBy(x: 0, y: -drawingImageViewSize.width)
-            } else if angle == 180 {
-                transform = transform.translatedBy(x: -drawingImageViewSize.width, y: -drawingImageViewSize.height)
-            } else if angle == 270 {
-                transform = transform.translatedBy(x: -drawingImageViewSize.height, y: 0)
-            }
-            transform = transform.concatenating(drawingImageView.transform)
-            eraserCircleView.center = point.applying(transform)
+            eraserCircleView.center = pan.location(in: containerView)
             
             let eraserDrawRect = CGRect(x: drawPoint.x-eraserCircleView.frame.width/2.0, y: drawPoint.y-eraserCircleView.frame.height/2.0, width: eraserCircleView.frame.width, height: eraserCircleView.frame.height)
             var needDraw = false

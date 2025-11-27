@@ -27,7 +27,7 @@
 import UIKit
 import Photos
 
-public class ZLPhotoPreviewSheet: UIView {
+class ZLPhotoPreviewSheet: UIView {
     private enum Layout {
         static let colH: CGFloat = 155
         
@@ -143,6 +143,10 @@ public class ZLPhotoPreviewSheet: UIView {
     
     @objc public var cancelBlock: (() -> Void)?
     
+    var selectPhotosBlock: ((_ models: [ZLPhotoModel], _ isOriginal: Bool) -> Void)?
+    
+    var showLibraryBlock: ((_ models: [ZLPhotoModel], _ isOriginal: Bool) -> Void)?
+    
     deinit {
         zl_debugPrint("ZLPhotoPreviewSheet deinit")
     }
@@ -150,7 +154,6 @@ public class ZLPhotoPreviewSheet: UIView {
     /// - Parameter selectedAssets: preselected assets
     @objc public convenience init(selectedAssets: [PHAsset]? = nil) {
         self.init(frame: .zero)
-        
         let config = ZLPhotoConfiguration.default()
         selectedAssets?.zl.removeDuplicate().forEach { asset in
             if !config.allowMixSelect, asset.mediaType == .video {
@@ -165,7 +168,7 @@ public class ZLPhotoPreviewSheet: UIView {
     
     /// Using this init method, you can continue editing the selected photo.
     /// - Note:
-    ///     Provided that saveNewImageAfterEdit = false
+    ///     If you want to continue the last edit, you need to satisfy the value of `saveNewImageAfterEdit` is `false` at the time of the last selection.
     /// - Parameters:
     ///    - results : preselected results
     @objc public convenience init(results: [ZLResultModel]? = nil) {
@@ -184,6 +187,20 @@ public class ZLPhotoPreviewSheet: UIView {
             }
             m.isSelected = true
             self.arrSelectedModels.append(m)
+        }
+    }
+    
+    @objc public convenience init(models: [ZLPhotoModel]? = nil) {
+        self.init(frame: .zero)
+        
+        let config = ZLPhotoConfiguration.default()
+        models?.forEach { item in
+            if !config.allowMixSelect, item.asset.mediaType == .video {
+                return
+            }
+            
+            item.isSelected = true
+            self.arrSelectedModels.append(item)
         }
     }
     
@@ -273,10 +290,12 @@ public class ZLPhotoPreviewSheet: UIView {
         return true
     }
     
+    /// - Warning: When calling this method in OC language, make sure that the `sender` is not zero
     @objc public func showPreview(animate: Bool = true, sender: UIViewController) {
         show(preview: true, animate: animate, sender: sender)
     }
     
+    /// - Warning: When calling this method in OC language, make sure that the `sender` is not zero
     @objc public func showPhotoLibrary(sender: UIViewController) {
         show(preview: false, animate: false, sender: sender)
     }
@@ -332,7 +351,8 @@ public class ZLPhotoPreviewSheet: UIView {
             PHPhotoLibrary.requestAuthorization { status in
                 ZLMainAsync {
                     if status == .denied {
-                        self.showNoAuthorityAlert()
+                        // 不符合苹果审核，这里注释掉 https://github.com/longitachi/ZLPhotoBrowser/issues/969#issuecomment-2601632232
+//                        self.showNoAuthorityAlert()
                     } else if status == .authorized {
                         if self.preview {
                             self.loadPhotos()
@@ -400,7 +420,7 @@ public class ZLPhotoPreviewSheet: UIView {
         }
     }
     
-    private func hide(completion: (() -> Void)? = nil) {
+    func hide(completion: (() -> Void)? = nil) {
         if animate {
             var frame = baseView.frame
             frame.origin.y += baseViewHeight
@@ -432,7 +452,7 @@ public class ZLPhotoPreviewSheet: UIView {
         let action = ZLCustomAlertAction(title: localLanguageTextValue(.ok), style: .default) { _ in
             ZLPhotoConfiguration.default().noAuthorityCallback?(.library)
         }
-        showAlertController(title: nil, message: String(format: localLanguageTextValue(.noPhotoLibratyAuthority), getAppName()), style: .alert, actions: [action], sender: sender)
+        showAlertController(title: nil, message: String(format: localLanguageTextValue(.noPhotoLibraryAuthorityAlertMessage), getAppName()), style: .alert, actions: [action], sender: sender)
     }
     
     @objc private func tapAction(_ tap: UITapGestureRecognizer) {
@@ -443,6 +463,8 @@ public class ZLPhotoPreviewSheet: UIView {
     
     @objc private func cameraBtnClick() {
         let config = ZLPhotoConfiguration.default()
+        guard config.canEnterCamera?() ?? true else { return }
+        
         if config.useCustomCamera {
             let camera = ZLCustomCamera()
             camera.takeDoneBlock = { [weak self] image, videoUrl in
@@ -475,7 +497,7 @@ public class ZLPhotoPreviewSheet: UIView {
                 picker.videoMaximumDuration = TimeInterval(config.cameraConfiguration.maxRecordDuration)
                 sender?.showDetailViewController(picker, sender: nil)
             } else {
-                showAlertView(String(format: localLanguageTextValue(.noCameraAuthority), getAppName()), sender)
+                showAlertView(String(format: localLanguageTextValue(.noCameraAuthorityAlertMessage), getAppName()), sender)
             }
         }
     }
@@ -483,7 +505,12 @@ public class ZLPhotoPreviewSheet: UIView {
     @objc private func photoLibraryBtnClick() {
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
         animate = false
-        showThumbnailViewController()
+        
+        if let showLibraryBlock {
+            showLibraryBlock(arrSelectedModels, isSelectOriginal)
+        } else {
+            showThumbnailViewController()
+        }
     }
     
     @objc private func cancelBtnClick() {
@@ -493,7 +520,12 @@ public class ZLPhotoPreviewSheet: UIView {
             }
             return
         }
-        requestSelectPhoto()
+        
+        if let selectPhotosBlock {
+            selectPhotosBlock(arrSelectedModels, isSelectOriginal)
+        } else {
+            requestSelectPhoto()
+        }
     }
     
     @objc private func panSelectAction(_ pan: UIPanGestureRecognizer) {
@@ -745,8 +777,8 @@ public class ZLPhotoPreviewSheet: UIView {
             let vc = ZLEditVideoViewController(avAsset: avAsset)
             vc.editFinishBlock = { [weak self] url in
                 if let url = url {
-                    ZLPhotoManager.saveVideoToAlbum(url: url) { [weak self] suc, asset in
-                        if suc, let asset = asset {
+                    ZLPhotoManager.saveVideoToAlbum(url: url) { [weak self] error, asset in
+                        if error == nil, let asset {
                             let m = ZLPhotoModel(asset: asset)
                             m.isSelected = true
                             self?.arrSelectedModels.removeAll()
@@ -789,7 +821,14 @@ public class ZLPhotoPreviewSheet: UIView {
             self?.isSelectOriginal = nav?.isSelectedOriginal ?? false
             self?.arrSelectedModels.removeAll()
             self?.arrSelectedModels.append(contentsOf: nav?.arrSelectedModels ?? [])
-            self?.requestSelectPhoto(viewController: nav)
+            
+            if let block = self?.selectPhotosBlock {
+                nav?.dismiss(animated: true) {
+                    block(self?.arrSelectedModels ?? [], self?.isSelectOriginal ?? false)
+                }
+            } else {
+                self?.requestSelectPhoto(viewController: nav)
+            }
         }
         
         nav.cancelBlock = { [weak self] in
@@ -807,9 +846,9 @@ public class ZLPhotoPreviewSheet: UIView {
     private func save(image: UIImage?, videoUrl: URL?) {
         if let image = image {
             let hud = ZLProgressHUD.show(toast: .processing)
-            ZLPhotoManager.saveImageToAlbum(image: image) { [weak self] suc, asset in
+            ZLPhotoManager.saveImageToAlbum(image: image) { [weak self] error, asset in
                 hud.hide()
-                if suc, let asset = asset {
+                if error == nil, let asset {
                     let model = ZLPhotoModel(asset: asset)
                     self?.handleDataArray(newModel: model)
                 } else {
@@ -818,10 +857,10 @@ public class ZLPhotoPreviewSheet: UIView {
             }
         } else if let videoUrl = videoUrl {
             let hud = ZLProgressHUD.show(toast: .processing)
-            ZLPhotoManager.saveVideoToAlbum(url: videoUrl) { [weak self] suc, asset in
+            ZLPhotoManager.saveVideoToAlbum(url: videoUrl) { [weak self] error, asset in
                 hud.hide()
-                if suc, let at = asset {
-                    let model = ZLPhotoModel(asset: at)
+                if error == nil, let asset {
+                    let model = ZLPhotoModel(asset: asset)
                     self?.handleDataArray(newModel: model)
                 } else {
                     showAlertView(localLanguageTextValue(.saveVideoError), self?.sender)
@@ -861,7 +900,10 @@ public class ZLPhotoPreviewSheet: UIView {
             self.collectionView.insertItems(at: [insertIndexPath])
         } completion: { _ in
             self.collectionView.scrollToItem(at: insertIndexPath, at: .centeredHorizontally, animated: true)
-            self.collectionView.reloadItems(at: self.collectionView.indexPathsForVisibleItems)
+            
+            DispatchQueue.main.async {
+                self.collectionView.reloadItems(at: self.collectionView.indexPathsForVisibleItems)
+            }
         }
         
         changeCancelBtnTitle()

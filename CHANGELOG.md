@@ -2,6 +2,90 @@
 
 -----
 
+## [4.7.3](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.7.3) (2025-10-17)
+### Fix:
+* Fixed the issue where the eraser position was displayed incorrectly when editing pictures. [#1025](https://github.com/longitachi/ZLPhotoBrowser/issues/1025)
+
+---
+
+## [4.7.2](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.7.2) (2025-09-29)
+### Add:
+* Improved video editing experience:
+    * Added a shadow area mask for a clearer view of the currently selected video clip.
+    * Added a feature to display the duration of the currently selected clip.
+* The ZLImagePreviewController interface supports disabling the pull-down return gesture.
+* Change the permission of ZLPhotoPreviewSheet to private.
+
+### Fix:
+* Fixed a bug where the UI of the thumbnail interface might display an error when the permission is "limited".
+
+---
+
+## [4.7.0 ~ 4.7.0.1](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.7.0) (2025-07-29)
+### Add:
+* Support page loading.
+* Provide a block that enables external control over whether the camera interface can be accessed.
+* Replace some deprecated APIs.
+* Support long-press gestures for more data types in ZLImagePreviewController. Support setting cover images for network videos.
+* The ZLImagePreviewController interface supports disabling the pull-down return gesture.
+
+---
+
+## [4.6.0 ~ 4.6.0.1](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.6.0.1) (2025-03-31)
+### Add:
+* Support SwiftUI.
+* Support for locked output orientation in custom camera. [#976](https://github.com/longitachi/ZLPhotoBrowser/pull/976) @tsinis
+* Optimize the playback experience of album videos and online videos.
+* Add will-capture-block for customizable capture actions. [#988](https://github.com/longitachi/ZLPhotoBrowser/pull/988) @tsinis
+* Replace ZLPhotoPreviewSheet with ZLPhotoPicker. The permission of ZLPhotoPreviewSheet will be changed to private later. [#996](https://github.com/longitachi/ZLPhotoBrowser/pull/996)
+* Enhance the text sticker feature by adding text outline and shadow effects.
+
+### Fix:
+* Fixed the bug that the time of automatically stopping recording is incorrect when clicking to record a video.
+* Fix the issue where the width and height calculations of some videos are inaccurate when previewing online videos.
+
+---
+
+## [4.5.8](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.8) (2025-02-18)
+### Add:
+* Add video stabilization support in custom camera. [#959](https://github.com/longitachi/ZLPhotoBrowser/pull/959) @tsinis
+
+### Fix:
+* Fix video recording with both torch-on and wide cameras. [#960](https://github.com/longitachi/ZLPhotoBrowser/pull/960) @tsinis
+* Fixed the problem of freezing caused by calculating the frame when previewing network videos. [#967](https://github.com/longitachi/ZLPhotoBrowser/issues/967)
+* Fix the memory leak issue in the ZLEditImageViewController interface. [#968](https://github.com/longitachi/ZLPhotoBrowser/issues/968)
+* After the initial request for album permissions is denied, the permission guidance alert will no longer be displayed. [#969](https://github.com/longitachi/ZLPhotoBrowser/issues/969)
+* Correct eraser misalignment after image cropping. [#971](https://github.com/longitachi/ZLPhotoBrowser/pull/971) @vcicis
+
+---
+
+## [4.5.7](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.7) (2024-12-02)
+### Add:
+* Custom camera supports tap-to-record mode. [#944](https://github.com/longitachi/ZLPhotoBrowser/pull/944) @tsinis
+* Custom camera supports wide-angle lenses on iOS 13 and above. [#948](https://github.com/longitachi/ZLPhotoBrowser/pull/948) @tsinis
+* Custom camera allows adding a custom overlay view. [#951](https://github.com/longitachi/ZLPhotoBrowser/pull/951) @tsinis
+* Video editing controller adds a callback block for canceling edits. [#953](https://github.com/longitachi/ZLPhotoBrowser/pull/953) @tsinis
+* Added `ZLImagePreviewControllerDelegate` protocol to receive event callbacks in `ZLImagePreviewController`.
+
+---
+
+## [4.5.6](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.6) (2024-10-21)
+### Add:
+* Support iOS18.
+* When saving pictures and videos, add error parameters in the callback.
+  
+---
+ 
+## [4.5.5](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.5) (2024-09-18)
+### Add:
+* The ZLImagePreviewController interface supports gesture-driven pull-down return animations.
+* Update the API for obtaining album permissions.
+  
+### Fix:
+* Fixed the bug that mosaics were not displayed during painting.
+
+---
+
 ## [4.5.4](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.4) (2024-07-05)
 ### Add:
 * Support iOS18. [#909](https://github.com/longitachi/ZLPhotoBrowser/pull/909) @patryk-sredzinski
@@ -10,7 +94,7 @@
   
 ### Fix:
 * Fix the issue where some UI elements are displayed incorrectly on phones without a notch. [#914](https://github.com/longitachi/ZLPhotoBrowser/issues/914)
-  
+
 ---
 
 ## [4.5.3](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.3) (2024-05-23)
@@ -23,13 +107,13 @@
 * Fix a bug that may cause failure when saving images from iCloud to local storage. [#901](https://github.com/longitachi/ZLPhotoBrowser/pull/901) @ilfocus
 
 ---
-    
+
 ## [4.5.2](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.2) (2024-04-15)
 ### Fix:
 * Fix the bug in the image cropping interface where the image is not displayed correctly when zooming in and the crop ratio is not 0.
 
 ---
-    
+
 ## [4.5.1](https://github.com/longitachi/ZLPhotoBrowser/releases/tag/4.5.1) (2024-03-29)
 ### Add:
 * Add xcprivacy file to the project.
