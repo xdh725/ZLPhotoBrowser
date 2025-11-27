@@ -211,7 +211,7 @@ open class ZLClipImageViewController: UIViewController {
     private var resetTimer: Timer?
     
     private var showRatioColView: Bool { clipRatios.count > 1 }
-    
+    var autoDismiss = true
     var animate = true
     /// 用作进入裁剪界面首次动画frame
     var presentAnimateFrame: CGRect?
@@ -591,7 +591,9 @@ open class ZLClipImageViewController: UIViewController {
         dismissAnimateFromRect = cancelClipAnimateFrame
         dismissAnimateImage = presentAnimateImage
         cancelClipBlock?()
-        dismiss(animated: animate, completion: nil)
+        if autoDismiss {
+            dismiss(animated: animate, completion: nil)
+        }
     }
     
     @objc private func revertBtnClick() {
@@ -629,12 +631,19 @@ open class ZLClipImageViewController: UIViewController {
         dismissAnimateFromRect = clipBoxFrame
         dismissAnimateImage = image.clipImage
         if presentingViewController is ZLCustomCamera {
-            dismiss(animated: animate) {
+            if autoDismiss {
+                dismiss(animated: animate) {
+                    self.clipDoneBlock?(self.angle, image.editRect, self.selectedRatio)
+                }
+            }else {
                 self.clipDoneBlock?(self.angle, image.editRect, self.selectedRatio)
             }
+            
         } else {
             clipDoneBlock?(angle, image.editRect, selectedRatio)
-            dismiss(animated: animate, completion: nil)
+            if autoDismiss {
+                dismiss(animated: animate, completion: nil)
+            }
         }
     }
     

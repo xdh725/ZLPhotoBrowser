@@ -479,6 +479,7 @@ open class ZLEditImageViewController: UIViewController {
                     cancel?(vc)
                 }
                 vc.animate = animate
+                vc.autoDismiss = autoDismiss
                 return vc
             } else {
                 let vc = ZLEditImageViewController(image: image, editModel: editModel)
