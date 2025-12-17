@@ -440,9 +440,6 @@ open class ZLClipImageViewController: UIViewController {
         insets.top += 20
         var rect = CGRect.zero
         var offsetx: CGFloat = 15
-        if selectedRatio.frameView != nil {
-            offsetx = 45
-        }
         rect.origin.x = offsetx
         rect.origin.y = insets.top
         rect.size.width = UIScreen.main.bounds.width - 15 * 2
