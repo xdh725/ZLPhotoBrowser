@@ -151,22 +151,43 @@ class ViewController: UIViewController {
     }
     
     @objc func cropImage() {
-        
-        let editImageConfiguration = ZLPhotoConfiguration.default().editImageConfiguration
-        editImageConfiguration.tools([.clip]).clipRatios([ZLImageClipRatio(title: "user_avatar", whRatio: 1, isCircle: false)])
-        editImageConfiguration.showClipDirectlyIfOnlyHasClipTool = true
+        // 配置编辑图片设置，使用 MJCustomClipImageViewController 作为裁剪类
         ZLPhotoConfiguration.default()
-            .editImageConfiguration(editImageConfiguration)
-            .editAfterSelectThumbnailImage(true)
-            .saveNewImageAfterEdit(false)
-            .maxSelectCount(1)
+            .editImageConfiguration
+            .tools([.clip])
+            .clipRatios([.custom])
+            .showClipDirectlyIfOnlyHasClipTool(true)
+            .customClipImageViewControllerClass(MJCustomClipImageViewController.self)
+        
+        // 配置选择器设置
+        ZLPhotoConfiguration.default()
+            .maxSelectCount(1)  // 单选模式
             .allowSelectVideo(false)
             .allowSelectGif(false)
-        let picker = ZLPhotoPreviewSheet()
-        picker.selectImageBlock = { result, isSucceed in
-            
-           
+            .allowPreviewPhotos(false)
+            .allowSelectLivePhoto(false)
+            .saveNewImageAfterEdit(false)
+            .allowEditImage(true)  // 启用图片编辑功能
+            .editAfterSelectThumbnailImage(true)  // 选择缩略图后自动进入编辑界面
+        
+        let picker = ZLPhotoPicker()
+        picker.selectImageBlock = { [weak self] results, isOriginal in
+            guard let `self` = self else { return }
+            // 由于配置了 editAfterSelectThumbnailImage = true 和 showClipDirectlyIfOnlyHasClipTool = true
+            // 选择图片后会自动进入裁剪界面（MJCustomClipImageViewController）
+            // 裁剪完成后会回调到这里
+            self.selectedImages = results.map { $0.image }
+            self.selectedAssets = results.map { $0.asset }
+            self.selectedResults = results
+            self.collectionView.reloadData()
         }
+        picker.cancelBlock = {
+            debugPrint("取消选择图片")
+        }
+        picker.selectImageRequestErrorBlock = { errorAssets, errorIndexs in
+            debugPrint("获取图片失败: \(errorAssets), 索引: \(errorIndexs)")
+        }
+        
         picker.showPhotoLibrary(sender: self)
     }
     

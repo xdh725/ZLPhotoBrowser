@@ -26,6 +26,31 @@
 
 import UIKit
 
+/// Protocol for custom ClipImageViewController
+public protocol ZLClipImageViewControllerProtocol where Self: UIViewController {
+    /// Animation flag for presentation
+    var animate: Bool { get set }
+    
+    /// Auto dismiss flag
+    var autoDismiss: Bool { get set }
+    
+    /// Present animation frame
+    var presentAnimateFrame: CGRect? { get set }
+    
+    /// Present animation image
+    var presentAnimateImage: UIImage? { get set }
+    
+    /// Callback when clip is done
+    var clipDoneBlock: ((CGFloat, CGRect, ZLImageClipRatio) -> Void)? { get set }
+    
+    /// Callback when clip is cancelled
+    var cancelClipBlock: (() -> Void)? { get set }
+    
+    init(image: UIImage, status: ZLClipStatus)
+    
+    init(image: UIImage)
+}
+
 extension ZLClipImageViewController {
     enum ClipPanEdge {
         case none
@@ -40,7 +65,7 @@ extension ZLClipImageViewController {
     }
 }
 
-open class ZLClipImageViewController: UIViewController {
+open class ZLClipImageViewController: UIViewController, ZLClipImageViewControllerProtocol {
     private static let bottomToolViewH: CGFloat = 90
     
     private static let clipRatioItemSize = CGSize(width: 60, height: 70)
@@ -211,12 +236,12 @@ open class ZLClipImageViewController: UIViewController {
     private var resetTimer: Timer?
     
     private var showRatioColView: Bool { clipRatios.count > 1 }
-    var autoDismiss = true
-    var animate = true
+    public var autoDismiss = true
+    public var animate = true
     /// 用作进入裁剪界面首次动画frame
-    var presentAnimateFrame: CGRect?
+    public var presentAnimateFrame: CGRect?
     /// 用作进入裁剪界面首次动画和取消裁剪时动画的image
-    var presentAnimateImage: UIImage?
+    public var presentAnimateImage: UIImage?
     
     var dismissAnimateFromRect: CGRect = .zero
     
@@ -243,7 +268,7 @@ open class ZLClipImageViewController: UIViewController {
         cleanTimer()
     }
     
-    public init(image: UIImage, status: ZLClipStatus) {
+    required public init(image: UIImage, status: ZLClipStatus) {
         originalImage = image
         let configuration = ZLPhotoConfiguration.default().editImageConfiguration
         clipRatios = configuration.clipRatios
@@ -272,7 +297,7 @@ open class ZLClipImageViewController: UIViewController {
         }
     }
     
-    public init(image: UIImage) {
+    required public init(image: UIImage) {
         originalImage = image
         let status = ZLClipStatus(editRect: CGRect(origin: .zero, size: image.size))
         let configuration = ZLPhotoConfiguration.default().editImageConfiguration

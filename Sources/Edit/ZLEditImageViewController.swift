@@ -510,10 +510,13 @@ open class ZLEditImageViewController: UIViewController {
         if editConfig.showClipDirectlyIfOnlyHasClipTool,
            tools.count == 1,
            tools.contains(.clip) {
-            let vc = ZLClipImageViewController(
-                image: image,
-                status: editModel?.clipStatus ?? ZLClipStatus(editRect: CGRect(origin: .zero, size: image.size))
-            )
+            let clipStatus = editModel?.clipStatus ?? ZLClipStatus(editRect: CGRect(origin: .zero, size: image.size))
+            let vc: ZLClipImageViewControllerProtocol
+            if let customClass = editConfig.customClipImageViewControllerClass {
+                vc = customClass.init(image: image, status: clipStatus)
+            } else {
+                vc = ZLClipImageViewController(image: image, status: clipStatus)
+            }
             vc.clipDoneBlock = {[weak vc] angle, editRect, ratio in
                 let model = ZLEditImageModel(
                     clipStatus: ZLClipStatus(editRect: editRect, angle: angle, ratio: ratio)
@@ -1065,7 +1068,13 @@ open class ZLEditImageViewController: UIViewController {
         preClipStatus = currentClipStatus
         
         let currentEditImage = buildImage()
-        let vc = ZLClipImageViewController(image: currentEditImage, status: currentClipStatus)
+        let editConfig = ZLPhotoConfiguration.default().editImageConfiguration
+        let vc: ZLClipImageViewControllerProtocol
+        if let customClass = editConfig.customClipImageViewControllerClass {
+            vc = customClass.init(image: currentEditImage, status: currentClipStatus)
+        } else {
+            vc = ZLClipImageViewController(image: currentEditImage, status: currentClipStatus)
+        }
         let rect = mainScrollView.convert(containerView.frame, to: view)
         vc.presentAnimateFrame = rect
         vc.presentAnimateImage = currentEditImage.zl

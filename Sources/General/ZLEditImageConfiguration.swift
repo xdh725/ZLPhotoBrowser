@@ -185,6 +185,10 @@ public class ZLEditImageConfiguration: NSObject {
 
     /// Minimum zoom scale, allowing the user to make the edited photo smaller, so it does not overlap top and bottom tools menu. Defaults to 1.0
     public var minimumZoomScale = 1.0
+    
+    /// Custom ClipImageViewController class conforming to ZLClipImageViewControllerProtocol.
+    /// If set, this class will be used instead of ZLClipImageViewController.
+    public var customClipImageViewControllerClass: ZLClipImageViewControllerProtocol.Type?
 }
 
 public extension ZLEditImageConfiguration {
@@ -325,6 +329,12 @@ public extension ZLEditImageConfiguration {
     @discardableResult
     func minimumZoomScale(_ value: CGFloat) -> ZLEditImageConfiguration {
         minimumZoomScale = value
+        return self
+    }
+    
+    @discardableResult
+    func customClipImageViewControllerClass(_ cls: ZLClipImageViewControllerProtocol.Type?) -> ZLEditImageConfiguration {
+        customClipImageViewControllerClass = cls
         return self
     }
 }
