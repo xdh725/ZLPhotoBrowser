@@ -189,6 +189,10 @@ public class ZLEditImageConfiguration: NSObject {
     /// Custom ClipImageViewController class conforming to ZLClipImageViewControllerProtocol.
     /// If set, this class will be used instead of ZLClipImageViewController.
     public var customClipImageViewControllerClass: ZLClipImageViewControllerProtocol.Type?
+    
+    /// Callback when custom clip image view controller is created.
+    /// This allows you to get a reference to the custom clip view controller instance.
+    public var customClipImageViewControllerCreatedBlock: ((ZLClipImageViewControllerProtocol) -> Void)?
 }
 
 public extension ZLEditImageConfiguration {
@@ -335,6 +339,12 @@ public extension ZLEditImageConfiguration {
     @discardableResult
     func customClipImageViewControllerClass(_ cls: ZLClipImageViewControllerProtocol.Type?) -> ZLEditImageConfiguration {
         customClipImageViewControllerClass = cls
+        return self
+    }
+    
+    @discardableResult
+    func customClipImageViewControllerCreatedBlock(_ block: ((ZLClipImageViewControllerProtocol) -> Void)?) -> ZLEditImageConfiguration {
+        customClipImageViewControllerCreatedBlock = block
         return self
     }
 }

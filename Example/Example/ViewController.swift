@@ -151,6 +151,9 @@ class ViewController: UIViewController {
     }
     
     @objc func cropImage() {
+        // 存储裁剪 view controller 的引用
+        var clipViewController: MJCustomClipImageViewController?
+        
         // 配置编辑图片设置，使用 MJCustomClipImageViewController 作为裁剪类
         ZLPhotoConfiguration.default()
             .editImageConfiguration
@@ -158,6 +161,14 @@ class ViewController: UIViewController {
             .clipRatios([.custom])
             .showClipDirectlyIfOnlyHasClipTool(true)
             .customClipImageViewControllerClass(MJCustomClipImageViewController.self)
+            .customClipImageViewControllerCreatedBlock { vc in
+                // 获取到自定义裁剪 view controller 的引用
+                if let customVC = vc as? MJCustomClipImageViewController {
+                    clipViewController = customVC
+                    debugPrint("获取到 MJCustomClipImageViewController 引用: \(customVC)")
+                    // 可以在这里对 customVC 进行自定义配置
+                }
+            }
         
         // 配置选择器设置
         ZLPhotoConfiguration.default()

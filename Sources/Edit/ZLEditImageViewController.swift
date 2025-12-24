@@ -514,6 +514,7 @@ open class ZLEditImageViewController: UIViewController {
             let vc: ZLClipImageViewControllerProtocol
             if let customClass = editConfig.customClipImageViewControllerClass {
                 vc = customClass.init(image: image, status: clipStatus)
+                editConfig.customClipImageViewControllerCreatedBlock?(vc)
             } else {
                 vc = ZLClipImageViewController(image: image, status: clipStatus)
             }
@@ -1072,6 +1073,7 @@ open class ZLEditImageViewController: UIViewController {
         let vc: ZLClipImageViewControllerProtocol
         if let customClass = editConfig.customClipImageViewControllerClass {
             vc = customClass.init(image: currentEditImage, status: currentClipStatus)
+            editConfig.customClipImageViewControllerCreatedBlock?(vc)
         } else {
             vc = ZLClipImageViewController(image: currentEditImage, status: currentClipStatus)
         }

@@ -267,7 +267,11 @@ public class ZLPhotoPicker: NSObject {
             }
             
             if let vc = viewController {
-                vc.dismiss(animated: true) {
+                if ZLPhotoConfiguration.default().autoDismiss {
+                    vc.dismiss(animated: true) {
+                        call()
+                    }
+                } else {
                     call()
                 }
             } else {

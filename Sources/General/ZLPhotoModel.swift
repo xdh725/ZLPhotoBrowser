@@ -103,6 +103,8 @@ public class ZLPhotoModel: NSObject {
     // Content of the last edit.
     public var editImageModel: ZLEditImageModel?
     
+    public weak var cropVC: ZLClipImageViewControllerProtocol?
+    
     public init(asset: PHAsset) {
         ident = asset.localIdentifier
         self.asset = asset
