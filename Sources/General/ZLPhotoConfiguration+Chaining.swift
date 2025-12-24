@@ -315,4 +315,10 @@ public extension ZLPhotoConfiguration {
         operateBeforeDoneAction = block
         return self
     }
+    
+    @discardableResult
+    func autoDismiss(_ value: Bool) -> ZLPhotoConfiguration {
+        autoDismiss = value
+        return self
+    }
 }

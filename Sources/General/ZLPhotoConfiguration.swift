@@ -273,6 +273,9 @@ public class ZLPhotoConfiguration: NSObject {
     /// The first parameter is the current controller.
     /// The second parameter is the block that needs to be called after the user completes the operation.
     public var operateBeforeDoneAction: ((UIViewController, @escaping () -> Void) -> Void)?
+    
+    /// Whether to automatically dismiss the photo picker after selection is completed. Defaults to true.
+    public var autoDismiss = true
 }
 
 @objc public enum ZLNoAuthorityType: Int {
