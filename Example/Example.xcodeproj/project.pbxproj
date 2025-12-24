@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D0C22CBC2EFBF86C008888CB /* MJCustomClipImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C22CBB2EFBF86C008888CB /* MJCustomClipImageViewController.swift */; };
 		E42F8ADB25CA9CDF009775A3 /* WeChatMomentDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42F8ADA25CA9CDF009775A3 /* WeChatMomentDemoViewController.swift */; };
 		E44A20F02567763A00FE6CAE /* ImageStickerContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44A20EF2567763A00FE6CAE /* ImageStickerContainerView.swift */; };
 		E462467024EE6F9A00EF6C57 /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E462466F24EE6F9A00EF6C57 /* ImageCell.swift */; };
@@ -137,6 +138,7 @@
 		BAFFA5492773B655007C3811 /* es-419 */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-419"; path = "es-419.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		BAFFA54A2773B65B007C3811 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Main.strings"; sourceTree = "<group>"; };
 		BAFFA54B2773B65C007C3811 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		D0C22CBB2EFBF86C008888CB /* MJCustomClipImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MJCustomClipImageViewController.swift; sourceTree = "<group>"; };
 		E42F8ADA25CA9CDF009775A3 /* WeChatMomentDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeChatMomentDemoViewController.swift; sourceTree = "<group>"; };
 		E44A20EF2567763A00FE6CAE /* ImageStickerContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStickerContainerView.swift; sourceTree = "<group>"; };
 		E462466F24EE6F9A00EF6C57 /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
@@ -371,6 +373,7 @@
 				E4C911A224E283D80061DA40 /* AppDelegate.swift */,
 				E4C911A624E283D80061DA40 /* ViewController.swift */,
 				E480050725316920008A2B67 /* ZLCustomFilter.swift */,
+				D0C22CBB2EFBF86C008888CB /* MJCustomClipImageViewController.swift */,
 				E4A4109624F39DF700EEC20B /* PhotoConfigureViewController.swift */,
 				E4C69FED253EDA8600AE466C /* PhotoConfigureCNViewController.swift */,
 				E42F8ADA25CA9CDF009775A3 /* WeChatMomentDemoViewController.swift */,
@@ -629,6 +632,7 @@
 				E4A410D424F39F0000EEC20B /* Typealiases.swift in Sources */,
 				FD0F5AA82AFDDA1800EE83F3 /* KingfisherError.swift in Sources */,
 				FD0F5AB52AFDDA1800EE83F3 /* RedirectHandler.swift in Sources */,
+				D0C22CBC2EFBF86C008888CB /* MJCustomClipImageViewController.swift in Sources */,
 				FD0F5AB42AFDDA1800EE83F3 /* SessionDataTask.swift in Sources */,
 				E4A410C724F39F0000EEC20B /* ConstraintInsets.swift in Sources */,
 				E4A410C424F39F0000EEC20B /* ConstraintAttributes.swift in Sources */,

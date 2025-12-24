@@ -27,9 +27,9 @@
 import UIKit
 
 public struct ZLClipStatus {
-    var editRect: CGRect
-    var angle: CGFloat = 0
-    var ratio: ZLImageClipRatio?
+    public var editRect: CGRect
+    public var angle: CGFloat = 0
+    public var ratio: ZLImageClipRatio?
     
     public init(editRect: CGRect, angle: CGFloat = 0, ratio: ZLImageClipRatio? = nil) {
         self.editRect = editRect
