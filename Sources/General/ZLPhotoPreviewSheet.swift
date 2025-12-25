@@ -300,6 +300,11 @@ class ZLPhotoPreviewSheet: UIView {
         show(preview: false, animate: false, sender: sender)
     }
     
+    /// Clear all selected models. This allows external users to manually clear the selected photos.
+    @objc public func clearSelectedModels() {
+        arrSelectedModels.removeAll()
+    }
+    
     /// 传入已选择的assets，并预览
     @objc public func previewAssets(
         sender: UIViewController,

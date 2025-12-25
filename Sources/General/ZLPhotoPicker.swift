@@ -215,6 +215,11 @@ public class ZLPhotoPicker: NSObject {
         cancelBlock?()
     }
     
+    /// Clear all selected models. This allows external users to manually clear the selected photos.
+    @objc public func clearSelectedModels() {
+        arrSelectedModels.removeAll()
+    }
+    
     /// 解析选择的图片
     private func requestSelectPhoto(
         models: [ZLPhotoModel],
