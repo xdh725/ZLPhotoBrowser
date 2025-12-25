@@ -66,4 +66,9 @@ public class ZLImageNavController: UINavigationController {
 
         // Do any additional setup after loading the view.
     }
+    
+    /// Clear all selected models. This allows external users to manually clear the selected photos.
+    @objc public func clearSelectedModels() {
+        arrSelectedModels.removeAll()
+    }
 }
