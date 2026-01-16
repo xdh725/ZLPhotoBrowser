@@ -98,17 +98,25 @@ class ZLPhotoPreviewController: UIViewController {
         return btn
     }()
     
-//    private lazy var indexLabel: UILabel = {
-//        let label = UILabel()
-//        label.backgroundColor = .zl.indexLabelBgColor
-//        label.font = .zl.font(ofSize: 14)
-//        label.textColor = .white
-//        label.textAlignment = .center
-//        label.layer.cornerRadius = 25.0 / 2
-//        label.layer.masksToBounds = true
-//        label.isHidden = true
-//        return label
-//    }()
+    private lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .zl.font(ofSize: 17)
+        label.textColor = .zl.navTitleColor
+        label.textAlignment = .center
+        return label
+    }()
+    
+    private lazy var indexLabel: UILabel = {
+        let label = UILabel()
+        label.backgroundColor = .zl.indexLabelBgColor
+        label.font = .zl.font(ofSize: 14)
+        label.textColor = .white
+        label.textAlignment = .center
+        label.layer.cornerRadius = 25.0 / 2
+        label.layer.masksToBounds = true
+        label.isHidden = true
+        return label
+    }()
     
     private lazy var bottomView: UIView = {
         let view = UIView()
@@ -213,6 +221,7 @@ class ZLPhotoPreviewController: UIViewController {
         setupUI()
         
         addPopInteractiveTransition()
+        updateTitleLabel()
         resetSubviewStatus()
     }
     
@@ -259,7 +268,16 @@ class ZLPhotoPreviewController: UIViewController {
             selectBtn.frame = CGRect(x: view.zl.width - 40 - insets.right, y: insets.top + (44 - 24) / 2, width: 24, height: 24)
         }
         
-//        indexLabel.frame = selectBtn.bounds
+        // 布局标题标签，显示在导航栏中间
+        let titleLabelWidth: CGFloat = 120
+        titleLabel.frame = CGRect(
+            x: (view.zl.width - titleLabelWidth) / 2,
+            y: insets.top,
+            width: titleLabelWidth,
+            height: 44
+        )
+        
+        indexLabel.frame = selectBtn.bounds
         
         refreshBottomViewFrame()
         
@@ -367,7 +385,8 @@ class ZLPhotoPreviewController: UIViewController {
         
         navView.addSubview(backBtn)
         navView.addSubview(selectBtn)
-//        selectBtn.addSubview(indexLabel)
+        navView.addSubview(titleLabel)
+        selectBtn.addSubview(indexLabel)
         view.addSubview(collectionView)
         view.addSubview(bottomView)
         
@@ -381,6 +400,9 @@ class ZLPhotoPreviewController: UIViewController {
             selPhotoPreview = ZLPhotoPreviewSelectedView(selModels: selModels, currentShowModel: arrDataSources[currentIndex])
             selPhotoPreview?.selectBlock = { [weak self] model in
                 self?.scrollToSelPreviewCell(model)
+            }
+            selPhotoPreview?.deleteBlock = { [weak self] model in
+                self?.handleDeleteModel(model)
             }
             selPhotoPreview?.beginSortBlock = { [weak self] in
                 self?.resetSubviewStatusWhenDraging(enable: false)
@@ -492,6 +514,12 @@ class ZLPhotoPreviewController: UIViewController {
         }
     }
     
+    private func updateTitleLabel() {
+        let total = arrDataSources.count
+        let current = currentIndex + 1
+        titleLabel.text = "\(current)/\(total)"
+    }
+    
     private func resetSubviewStatus() {
         guard let nav = navigationController as? ZLImageNavController else {
             zlLoggerInDebug("Navigation controller is null")
@@ -501,14 +529,14 @@ class ZLPhotoPreviewController: UIViewController {
         let config = ZLPhotoConfiguration.default()
         let currentModel = arrDataSources[currentIndex]
         
-        if (!config.allowMixSelect && currentModel.type == .video) ||
+        if /*(!config.allowMixSelect && currentModel.type == .video) ||*/
             (!config.showSelectBtnWhenSingleSelect && config.maxSelectCount == 1) {
             selectBtn.isHidden = true
         } else {
             selectBtn.isHidden = false
         }
         selectBtn.isSelected = arrDataSources[currentIndex].isSelected
-//        resetIndexLabelStatus()
+        resetIndexLabelStatus()
         
         guard showBottomViewAndSelectBtn else {
             selectBtn.isHidden = true
@@ -567,22 +595,22 @@ class ZLPhotoPreviewController: UIViewController {
         }
     }
     
-//    private func resetIndexLabelStatus() {
-//        guard ZLPhotoConfiguration.default().showSelectedIndex else {
-//            indexLabel.isHidden = true
-//            return
-//        }
-//        guard let nav = navigationController as? ZLImageNavController else {
-//            zlLoggerInDebug("Navigation controller is null")
-//            return
-//        }
-//        if let index = nav.arrSelectedModels.firstIndex(where: { $0 == self.arrDataSources[self.currentIndex] }) {
-//            indexLabel.isHidden = false
-//            indexLabel.text = String(index + 1)
-//        } else {
-//            indexLabel.isHidden = true
-//        }
-//    }
+    private func resetIndexLabelStatus() {
+        guard ZLPhotoConfiguration.default().showSelectedIndex else {
+            indexLabel.isHidden = true
+            return
+        }
+        guard let nav = navigationController as? ZLImageNavController else {
+            zlLoggerInDebug("Navigation controller is null")
+            return
+        }
+        if let index = nav.arrSelectedModels.firstIndex(where: { $0 == self.arrDataSources[self.currentIndex] }) {
+            indexLabel.isHidden = false
+            indexLabel.text = String(index + 1)
+        } else {
+            indexLabel.isHidden = true
+        }
+    }
     
     // MARK: btn actions
     
@@ -613,7 +641,10 @@ class ZLPhotoPreviewController: UIViewController {
             
             resetSubviewStatus()
         } else {
-            if !canAddModel(currentModel, currentSelectCount: nav.arrSelectedModels.count, sender: self) {
+            let config = ZLPhotoConfiguration.default()
+            let currentSelectCount = nav.arrSelectedModels.count
+            
+            if !canAddModel(currentModel, currentSelectCount: currentSelectCount, sender: self, selectedModels: nav.arrSelectedModels) {
                 return
             }
             
@@ -729,7 +760,7 @@ class ZLPhotoPreviewController: UIViewController {
             return
         }
         
-        guard canAddModel(currentModel, currentSelectCount: nav.arrSelectedModels.count, sender: self) else {
+        guard canAddModel(currentModel, currentSelectCount: nav.arrSelectedModels.count, sender: self, selectedModels: nav.arrSelectedModels) else {
             return
         }
         
@@ -762,6 +793,7 @@ class ZLPhotoPreviewController: UIViewController {
             self.collectionView.scrollToItem(at: IndexPath(row: index, section: 0), at: .centeredHorizontally, animated: false)
         } completion: { _ in
             self.indexBeforOrientationChanged = self.currentIndex
+            self.updateTitleLabel()
             self.reloadCurrentCell()
         }
     }
@@ -773,7 +805,43 @@ class ZLPhotoPreviewController: UIViewController {
         guard ZLPhotoConfiguration.default().showSelectedIndex else {
             return
         }
-//        resetIndexLabelStatus()
+        resetIndexLabelStatus()
+    }
+    
+    private func handleDeleteModel(_ model: ZLPhotoModel) {
+        guard let nav = navigationController as? ZLImageNavController else {
+            return
+        }
+        
+        let config = ZLPhotoConfiguration.default()
+        model.isSelected = false
+        nav.arrSelectedModels.removeAll { $0 == model }
+        selPhotoPreview?.removeSelModel(model: model)
+        
+        config.didDeselectAsset?(model.asset)
+        
+        resetSubviewStatus()
+        
+        // 如果删除的是当前显示的图片，需要更新当前索引
+        if arrDataSources[currentIndex] == model {
+            // 如果还有选中的图片，跳转到第一个选中的图片
+            if let firstSelected = nav.arrSelectedModels.first,
+               let index = arrDataSources.firstIndex(where: { $0 == firstSelected }) {
+                currentIndex = index
+                collectionView.scrollToItem(at: IndexPath(row: index, section: 0), at: .centeredHorizontally, animated: true)
+                updateTitleLabel()
+            }
+        }
+        
+        // 更新所有可见 cell 的选择状态
+        collectionView.visibleCells.forEach { cell in
+            if let baseCell = cell as? ZLPreviewBaseCell,
+               let indexPath = collectionView.indexPath(for: cell),
+               indexPath.row < arrDataSources.count {
+                let m = arrDataSources[indexPath.row]
+                baseCell.isSelected = m.isSelected
+            }
+        }
     }
     
     private func tapPreviewCell() {
@@ -877,6 +945,7 @@ extension ZLPhotoPreviewController {
         }
         
         currentIndex = page
+        updateTitleLabel()
         resetSubviewStatus()
         selPhotoPreview?.changeCurrentModel(to: arrDataSources[currentIndex])
         preloadPhotos()
@@ -884,6 +953,7 @@ extension ZLPhotoPreviewController {
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         indexBeforOrientationChanged = currentIndex
+        updateTitleLabel()
         let cell = collectionView.cellForItem(at: IndexPath(row: currentIndex, section: 0))
         if let cell = cell as? ZLGifPreviewCell {
             cell.loadGifWhenCellDisplaying()
@@ -1033,6 +1103,8 @@ class ZLPhotoPreviewSelectedView: UIView, UICollectionViewDataSource, UICollecti
     var isDraging = false
     
     var selectBlock: ((ZLPhotoModel) -> Void)?
+    
+    var deleteBlock: ((ZLPhotoModel) -> Void)?
     
     var beginSortBlock: (() -> Void)?
     
@@ -1191,6 +1263,9 @@ class ZLPhotoPreviewSelectedView: UIView, UICollectionViewDataSource, UICollecti
         
         let m = arrSelectedModels[indexPath.row]
         cell.model = m
+        cell.deleteBlock = { [weak self] model in
+            self?.deleteBlock?(model)
+        }
         
         return cell
     }
@@ -1209,7 +1284,7 @@ class ZLPhotoPreviewSelectedView: UIView, UICollectionViewDataSource, UICollecti
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         let m = arrSelectedModels[indexPath.row]
         if m == currentShowModel {
-            cell.layer.borderWidth = 4
+            cell.layer.borderWidth = 3
         } else {
             cell.layer.borderWidth = 0
         }
@@ -1238,10 +1313,21 @@ class ZLPhotoPreviewSelectedViewCell: UICollectionViewCell {
     
     private lazy var tagLabel: UILabel = {
         let label = UILabel()
-        label.font = .zl.font(ofSize: 13)
+        label.font = .zl.font(ofSize: 10)
         label.textColor = .white
+        label.textAlignment = .center
+        label.backgroundColor = UIColor(white: 0, alpha: 0.56)
         return label
     }()
+    
+    private lazy var deleteBtn: UIButton = {
+        let btn = UIButton(type: .custom)
+        btn.setImage(.zl.getImage("zl_delete"), for: .normal)
+        btn.addTarget(self, action: #selector(deleteBtnClick), for: .touchUpInside)
+        return btn
+    }()
+    
+    var deleteBlock: ((ZLPhotoModel) -> Void)?
     
     private var imageRequestID: PHImageRequestID = PHInvalidImageRequestID
     
@@ -1261,6 +1347,7 @@ class ZLPhotoPreviewSelectedViewCell: UICollectionViewCell {
         contentView.addSubview(imageView)
         contentView.addSubview(tagImageView)
         contentView.addSubview(tagLabel)
+        contentView.addSubview(deleteBtn)
     }
     
     @available(*, unavailable)
@@ -1272,7 +1359,25 @@ class ZLPhotoPreviewSelectedViewCell: UICollectionViewCell {
         super.layoutSubviews()
         imageView.frame = bounds
         tagImageView.frame = CGRect(x: 5, y: bounds.height - 25, width: 20, height: 20)
-        tagLabel.frame = CGRect(x: 5, y: bounds.height - 25, width: bounds.width - 10, height: 20)
+        tagLabel.frame = CGRect(x: 0, y: bounds.height - 20, width: bounds.width, height: 20)
+        
+        // 删除按钮布局在右上角
+        let deleteBtnSize: CGFloat = 16
+        deleteBtn.frame = CGRect(x: bounds.width - deleteBtnSize - 3, y: 3, width: deleteBtnSize, height: deleteBtnSize)
+    }
+    
+    @objc private func deleteBtnClick() {
+        guard let model = model else { return }
+        // 阻止事件继续传播，避免触发 cell 的选择事件
+        deleteBlock?(model)
+    }
+    
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        // 如果点击在删除按钮区域内，返回删除按钮
+        if deleteBtn.frame.contains(point) {
+            return deleteBtn
+        }
+        return super.hitTest(point, with: event)
     }
     
     private func configureCell() {
@@ -1283,9 +1388,15 @@ class ZLPhotoPreviewSelectedViewCell: UICollectionViewCell {
         }
         
         if model.type == .video {
-            tagImageView.isHidden = false
-            tagImageView.image = .zl.getImage("zl_video")
-            tagLabel.isHidden = true
+            tagImageView.isHidden = true
+            tagLabel.isHidden = false
+            let duration = model.duration
+            if !duration.isEmpty {
+                tagLabel.text = duration
+            } else {
+                // 如果 model.duration 为空，从 PHAsset 获取
+                tagLabel.text = ZLCommonTools.formatVideoDuration(model.asset.duration)
+            }
         } else if ZLPhotoConfiguration.default().allowSelectGif, model.type == .gif {
             tagImageView.isHidden = true
             tagLabel.isHidden = false

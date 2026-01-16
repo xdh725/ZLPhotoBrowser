@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                  = 'ZLPhotoBrowser'
-  s.version               = '4.7.3'
+  s.version               = '4.24.0'
   s.summary               = 'A lightweight and pure Swift implemented library for select photos from album'
 
   s.description           = <<-DESC
@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.author                = {'longitachi' => 'longitachi@163.com'}
   s.social_media_url      = 'https://github.com/longitachi'
 
-  s.source                = {:git => 'https://github.com/longitachi/ZLPhotoBrowser.git', :tag => s.version}
+  s.source                = {:git => 'https://github.com/xdh725/ZLPhotoBrowser.git', :tag => s.version}
 
   s.ios.deployment_target = '10.0'
 

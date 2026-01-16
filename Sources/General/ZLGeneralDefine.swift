@@ -148,7 +148,7 @@ func showAlertController(title: String?, message: String?, style: ZLCustomAlertS
     presentedVC?.zl.showAlertController(alert)
 }
 
-func canAddModel(_ model: ZLPhotoModel, currentSelectCount: Int, sender: UIViewController?, showAlert: Bool = true) -> Bool {
+func canAddModel(_ model: ZLPhotoModel, currentSelectCount: Int, sender: UIViewController?, showAlert: Bool = true, selectedModels: [ZLPhotoModel]? = nil) -> Bool {
     let config = ZLPhotoConfiguration.default()
     
     guard config.canSelectAsset?(model.asset) ?? true else {
@@ -163,10 +163,38 @@ func canAddModel(_ model: ZLPhotoModel, currentSelectCount: Int, sender: UIViewC
         return false
     }
     
-    if currentSelectCount > 0,
-       !config.allowMixSelect,
-       model.type == .video {
-        return false
+    // 检查混合选择：如果已选择了图片，不能选择视频；如果已选择了视频，不能选择图片
+    if currentSelectCount > 0, !config.allowMixSelect, let selectedModels = selectedModels {
+        let hasImage = selectedModels.contains { $0.type != .video }
+        let hasVideo = selectedModels.contains { $0.type == .video }
+        
+        if model.type == .video && hasImage {
+            // 已选择图片，不能选择视频
+            if showAlert {
+                let message = "不支持同时上传图片和视频"
+                showAlertView(message, sender)
+            }
+            return false
+        } else if model.type != .video && hasVideo {
+            // 已选择视频，不能选择图片
+            if showAlert {
+                let message = "不支持同时上传图片和视频"
+                showAlertView(message, sender)
+            }
+            return false
+        }
+    }
+    
+    // 检查视频最大选择数量
+    if let selectedModels = selectedModels {
+        let videoCount = selectedModels.filter { $0.type == .video }.count
+        if videoCount >= config.maxVideoSelectCount {
+            if showAlert {
+                let message = String(format: localLanguageTextValue(.exceededMaxVideoSelectCount), config.maxVideoSelectCount)
+                showAlertView(message, sender)
+            }
+            return false
+        }
     }
     
     guard model.type == .video else {

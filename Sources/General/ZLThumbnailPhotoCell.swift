@@ -27,6 +27,25 @@
 import UIKit
 import Photos
 
+// 带内边距的 UILabel
+class ZLPaddingLabel: UILabel {
+    var textInsets = UIEdgeInsets.zero
+    
+    override func drawText(in rect: CGRect) {
+        super.drawText(in: rect.inset(by: textInsets))
+    }
+    
+    override func textRect(forBounds bounds: CGRect, limitedToNumberOfLines numberOfLines: Int) -> CGRect {
+        let insets = textInsets
+        var rect = super.textRect(forBounds: bounds.inset(by: insets), limitedToNumberOfLines: numberOfLines)
+        rect.origin.x -= insets.left
+        rect.origin.y -= insets.top
+        rect.size.width += (insets.left + insets.right)
+        rect.size.height += (insets.top + insets.bottom)
+        return rect
+    }
+}
+
 class ZLThumbnailPhotoCell: UICollectionViewCell {
     private let selectBtnWH: CGFloat = 24
     
@@ -40,11 +59,17 @@ class ZLThumbnailPhotoCell: UICollectionViewCell {
     
     private lazy var editImageTag = UIImageView(image: .zl.getImage("zl_editImage_tag"))
     
-    private lazy var descLabel: UILabel = {
-        let label = UILabel()
-        label.font = .zl.font(ofSize: 13)
+    private lazy var descLabel: ZLPaddingLabel = {
+        let label = ZLPaddingLabel()
+        label.font = .zl.font(ofSize: 12)
         label.textAlignment = .right
         label.textColor = .white
+        // 设置背景色：#000000，56%透明度
+        label.backgroundColor = UIColor.black.withAlphaComponent(0.56)
+        label.layer.cornerRadius = 8
+        label.layer.masksToBounds = true
+        // 设置内边距：3 7 3 7（上右下左）
+        label.textInsets = UIEdgeInsets(top: 3, left: 7, bottom: 3, right: 7)
         return label
     }()
     
@@ -103,7 +128,7 @@ class ZLThumbnailPhotoCell: UICollectionViewCell {
     
     var enableSelect = true {
         didSet {
-            containerView.alpha = enableSelect ? 1 : 0.2
+            // containerView.alpha = enableSelect ? 1 : 0.2
         }
     }
     
@@ -171,7 +196,13 @@ class ZLThumbnailPhotoCell: UICollectionViewCell {
         videoTag.frame = CGRect(x: 5, y: 1, width: 20, height: 15)
         livePhotoTag.frame = CGRect(x: 5, y: -1, width: 20, height: 20)
         editImageTag.frame = CGRect(x: 5, y: -1, width: 20, height: 20)
-        descLabel.frame = CGRect(x: 30, y: 1, width: bounds.width - 35, height: 17)
+        
+        // 计算 descLabel 自适应宽度
+        let maxWidth = bounds.width - 35
+        let labelSize = descLabel.sizeThatFits(CGSize(width: maxWidth, height: 17))
+        let labelWidth = min(labelSize.width, maxWidth)
+        let labelX = bounds.width - labelWidth - 5
+        descLabel.frame = CGRect(x: labelX, y: 1, width: labelWidth, height: 17)
         progressView.frame = CGRect(x: (bounds.width - 20) / 2, y: (bounds.height - 20) / 2, width: 20, height: 20)
     }
     
@@ -233,16 +264,13 @@ class ZLThumbnailPhotoCell: UICollectionViewCell {
             }
         }
         
-        let showSelBtn: Bool
-        if config.maxSelectCount > 1 {
-            if !config.allowMixSelect {
-                showSelBtn = model.type.rawValue < ZLPhotoModel.MediaType.video.rawValue
-            } else {
-                showSelBtn = true
-            }
-        } else {
-            showSelBtn = config.showSelectBtnWhenSingleSelect
-        }
+        let showSelBtn: Bool = true
+        // if config.maxSelectCount > 1 {
+        //     // allowMixSelect 不再控制选择按钮的显示，所有类型都显示选择按钮
+        //     showSelBtn = true
+        // } else {
+        //     showSelBtn = config.showSelectBtnWhenSingleSelect
+        // }
         
         btnSelect.isHidden = !showSelBtn
         btnSelect.isUserInteractionEnabled = showSelBtn

@@ -882,7 +882,7 @@ class ZLPhotoPreviewSheet: UIView {
         if config.maxSelectCount == 1, !config.showSelectBtnWhenSingleSelect {
             canSelect = false
         }
-        if canSelect, canAddModel(newModel, currentSelectCount: arrSelectedModels.count, sender: sender, showAlert: false) {
+        if canSelect, canAddModel(newModel, currentSelectCount: arrSelectedModels.count, sender: sender, showAlert: false, selectedModels: arrSelectedModels) {
             if !shouldDirectEdit(newModel) {
                 newModel.isSelected = true
                 arrSelectedModels.append(newModel)
@@ -942,7 +942,10 @@ extension ZLPhotoPreviewSheet: UICollectionViewDataSource, UICollectionViewDeleg
             guard let `self` = self else { return }
             
             if !model.isSelected {
-                guard canAddModel(model, currentSelectCount: self.arrSelectedModels.count, sender: self.sender) else {
+                let config = ZLPhotoConfiguration.default()
+                let currentSelectCount = self.arrSelectedModels.count
+                
+                guard canAddModel(model, currentSelectCount: currentSelectCount, sender: self.sender, selectedModels: self.arrSelectedModels) else {
                     return
                 }
                 

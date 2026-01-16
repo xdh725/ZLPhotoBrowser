@@ -764,7 +764,7 @@ class ZLThumbnailViewController: UIViewController {
                         return
                     }
                     
-                    if !(cell?.enableSelect ?? true) || !canAddModel(m, currentSelectCount: nav.arrSelectedModels.count, sender: self) {
+                    if !(cell?.enableSelect ?? true) || !canAddModel(m, currentSelectCount: nav.arrSelectedModels.count, sender: self, selectedModels: nav.arrSelectedModels) {
                         panSelectType = .none
                         return
                     }
@@ -835,7 +835,7 @@ class ZLThumbnailViewController: UIViewController {
                     if inSection {
                         if self.panSelectType == .select {
                             if !m.isSelected,
-                               canAddModel(m, currentSelectCount: nav.arrSelectedModels.count, sender: self, showAlert: false) {
+                               canAddModel(m, currentSelectCount: nav.arrSelectedModels.count, sender: self, showAlert: false, selectedModels: nav.arrSelectedModels) {
                                 m.isSelected = true
                             }
                         } else if self.panSelectType == .cancel {
@@ -1136,7 +1136,7 @@ class ZLThumbnailViewController: UIViewController {
         // 是否是单选模式，且不显示选择按钮
         let isSingleAndNotShowSelectBtnMode = config.maxSelectCount == 1 && !config.showSelectBtnWhenSingleSelect
         
-        if canSelect, canAddModel(newModel, currentSelectCount: nav?.arrSelectedModels.count ?? 0, sender: self, showAlert: false) {
+        if canSelect, canAddModel(newModel, currentSelectCount: nav?.arrSelectedModels.count ?? 0, sender: self, showAlert: false, selectedModels: nav?.arrSelectedModels) {
             if !shouldDirectEdit(newModel) {
                 if config.callbackDirectlyAfterTakingPhoto || !isSingleAndNotShowSelectBtnMode {
                     newModel.isSelected = true
@@ -1381,7 +1381,8 @@ extension ZLThumbnailViewController: UICollectionViewDataSource, UICollectionVie
         cell.selectedBlock = { [weak self, weak nav] block in
             if !model.isSelected {
                 let currentSelectCount = nav?.arrSelectedModels.count ?? 0
-                guard canAddModel(model, currentSelectCount: currentSelectCount, sender: self) else {
+                
+                guard canAddModel(model, currentSelectCount: currentSelectCount, sender: self, selectedModels: nav?.arrSelectedModels) else {
                     return
                 }
                 
