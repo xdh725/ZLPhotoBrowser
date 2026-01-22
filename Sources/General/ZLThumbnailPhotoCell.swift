@@ -236,7 +236,8 @@ class ZLThumbnailPhotoCell: UICollectionViewCell {
         
         if model.type == .video {
             bottomShadowView.isHidden = false
-            videoTag.isHidden = false
+//            videoTag.isHidden = false
+            videoTag.isHidden = true
             livePhotoTag.isHidden = true
             editImageTag.isHidden = true
             descLabel.text = model.duration

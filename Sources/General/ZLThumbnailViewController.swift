@@ -1597,6 +1597,24 @@ extension ZLThumbnailViewController: UICollectionViewDataSource, UICollectionVie
         let config = ZLPhotoConfiguration.default()
         let uiConfig = ZLPhotoUIConfiguration.default()
         
+        
+        // 检查视频是否超过大小或时长限制
+        if model.type == .video && !isSelected {
+            // 检查时长
+            if model.second > config.maxSelectVideoDuration {
+                cell.coverView.backgroundColor = .zl.invalidMaskColor
+                cell.coverView.isHidden = false
+                return
+            }
+            // 检查大小
+            
+            if let dataSize = model.dataSize, dataSize > config.maxSelectVideoDataSize {
+                cell.coverView.backgroundColor = .zl.invalidMaskColor
+                cell.coverView.isHidden = false
+                return
+            }
+        }
+        
         if isSelected {
             cell.coverView.backgroundColor = .zl.selectedMaskColor
             cell.coverView.isHidden = !uiConfig.showSelectedMask
