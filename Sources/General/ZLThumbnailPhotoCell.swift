@@ -264,7 +264,10 @@ class ZLThumbnailPhotoCell: UICollectionViewCell {
                 bottomShadowView.isHidden = true
             }
         }
-        
+
+        // Ensure layout recalculates descLabel frame after text changes.
+        setNeedsLayout()
+
         let showSelBtn: Bool = true
         // if config.maxSelectCount > 1 {
         //     // allowMixSelect 不再控制选择按钮的显示，所有类型都显示选择按钮
